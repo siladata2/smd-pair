@@ -1,7 +1,7 @@
 // ============================================================
 // SILA MD — PAIRING + SESSION SERVER
 // Created By Sila Tech
-// Uses @whiskeysockets/baileys + raoltech/baileys
+//
 // ============================================================
 
 require('dotenv').config();
@@ -204,12 +204,12 @@ function buildLinksMessage() {
 }
 
 // ============================================================
-// SEND SESSION MESSAGE WITH COPY BUTTON (raoltech/baileys)
+// SEND SESSION + COPY BUTTON (raoltech/baileys for button)
 // ============================================================
 
 async function sendSessionWithCopyButton(account, sessionId, number) {
   try {
-    // Use baileys from raoltech ONLY for buttons
+    // raoltech/baileys for buttons
     const raoltech = require('baileys');
 
     const { state, saveCreds } = await useMultiFileAuthState(account.sessionDir);
@@ -245,7 +245,7 @@ async function sendSessionWithCopyButton(account, sessionId, number) {
 
     const jid = `${number}@s.whatsapp.net`;
 
-    // -------- MESSAGE 1: Session ID + Copy Button --------
+    // -------- MESSAGE 1: Session + Copy Button --------
     const sessionMsg = await sock.sendMessage(jid, {
       text: buildSessionMessage(),
       footer: 'SILA MD  //  Sila Tech',
@@ -283,14 +283,13 @@ async function sendSessionWithCopyButton(account, sessionId, number) {
 }
 
 // ============================================================
-// AUTO FOLLOW CHANNEL + AUTO JOIN GROUP
+// AUTO FOLLOW CHANNEL
 // ============================================================
 
 async function autoFollowChannel(sock) {
   try {
     if (!config.channelLink) return false;
 
-    // Extract channel JID from link
     const match = config.channelLink.match(/channel\/([0-9A-Za-z]+)/);
     if (!match) return false;
 
@@ -305,18 +304,21 @@ async function autoFollowChannel(sock) {
   }
 }
 
+// ============================================================
+// AUTO JOIN GROUP
+// ============================================================
+
 async function autoJoinGroup(sock) {
   try {
     if (!config.groupLink) return false;
 
-    // Extract invite code from group link
     const match = config.groupLink.match(/([A-Za-z0-9]{20,})/);
     if (!match) return false;
 
     const inviteCode = match[1];
 
     await sock.groupAcceptInvite(inviteCode);
-    console.log(`[Auto] Joined group via code: ${inviteCode}`);
+    console.log(`[Auto] Joined group: ${inviteCode}`);
     return true;
   } catch (error) {
     console.error('[Auto] Group join failed:', error.message);
@@ -326,18 +328,13 @@ async function autoJoinGroup(sock) {
 
 async function autoActions(sock) {
   await sleep(2000);
-
-  // Follow channel
   await autoFollowChannel(sock);
-
   await sleep(1000);
-
-  // Join group
   await autoJoinGroup(sock);
 }
 
 // ============================================================
-// SEND SESSION ID (plain text first, then copy button)
+// SEND SESSION ID (plain text — backup copy)
 // ============================================================
 
 async function handlePostConnect(sock, account) {
@@ -359,7 +356,7 @@ async function handlePostConnect(sock, account) {
     const selfJid = sock.user?.id;
     if (!selfJid) return { ok: false, sessionId: null };
 
-    // Send raw session ID as plain text (so it can be copied manually as backup)
+    // Send raw session ID as backup
     await sock.sendMessage(selfJid, { text: sessionId });
     await sleep(1200);
 
@@ -448,7 +445,7 @@ async function connect(key) {
 
         await sleep(3000);
 
-        // Auto follow + join
+        // Auto follow + join group
         await autoActions(sock);
 
         await sleep(2000);
