@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#030513">
-<title>SILA MD | WhatsApp Pair</title>
+<title>SILA MD WHATSAPP WEB</title>
 
 <link rel="icon" href="https://i.ibb.co/bMmWvXvx/silamd.jpg">
 
@@ -20,11 +19,11 @@
   --pink: #ff168f;
   --orange: #ff9d00;
   --yellow: #ffd21f;
-  --green: #42ffad;
-  --red: #ff426f;
   --gray: #9ba6c8;
   --text: #e7edff;
   --card-line: rgba(0,229,255,.28);
+  --btn-bg: rgba(7,10,29,.92);
+  --btn-line: rgba(80,112,255,.3);
 }
 
 * {
@@ -33,98 +32,41 @@
   box-sizing: border-box;
 }
 
-html {
+html, body {
   min-height: 100%;
-  scroll-behavior: smooth;
 }
 
 body {
-  min-height: 100vh;
-  overflow-x: hidden;
-  display: flex;
-  justify-content: center;
-
   background: #030513;
   color: var(--text);
   font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
 
   background-image:
     radial-gradient(
       ellipse at 50% 0%,
-      rgba(42,30,116,.36),
+      rgba(42,30,116,.32),
       transparent 55%
     ),
     linear-gradient(
-      rgba(0,229,255,.045) 1px,
+      rgba(0,229,255,.055) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(0,229,255,.045) 1px,
+      rgba(0,229,255,.055) 1px,
       transparent 1px
     );
 
   background-size: auto, 64px 64px, 64px 64px;
-
-  animation: backgroundMove 18s ease-in-out infinite alternate;
 }
-
-@keyframes backgroundMove {
-  from {
-    background-position: 0 0, 0 0, 0 0;
-  }
-
-  to {
-    background-position: 0 0, 32px 32px, 32px 32px;
-  }
-}
-
-/* BACKGROUND GLOW */
-
-.ambient {
-  position: fixed;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: .12;
-  pointer-events: none;
-  z-index: 0;
-  animation: ambientFloat 9s ease-in-out infinite alternate;
-}
-
-.ambient.one {
-  background: var(--blue);
-  top: 5%;
-  left: -150px;
-}
-
-.ambient.two {
-  background: var(--pink);
-  right: -150px;
-  bottom: 5%;
-  animation-delay: -4s;
-}
-
-@keyframes ambientFloat {
-  from {
-    transform: translateY(-20px) scale(.9);
-  }
-
-  to {
-    transform: translateY(35px) scale(1.15);
-  }
-}
-
-/* MAIN WRAPPER */
 
 .wrap {
-  position: relative;
-  z-index: 1;
-
   width: 100%;
   max-width: 460px;
-
   padding: 48px 18px 40px;
   text-align: center;
 }
@@ -134,8 +76,8 @@ body {
 .logo {
   width: 108px;
   height: 108px;
-  object-fit: cover;
   border-radius: 24px;
+  object-fit: cover;
 
   border: 2px solid transparent;
 
@@ -145,47 +87,19 @@ body {
       135deg,
       var(--cyan),
       var(--blue),
-      var(--purple),
       var(--pink),
       var(--orange)
     ) border-box;
 
   box-shadow:
-    0 0 22px rgba(0,229,255,.2),
-    0 0 40px rgba(255,22,143,.12);
-
-  animation:
-    logoFloat 4s ease-in-out infinite,
-    logoGlow 3s ease-in-out infinite alternate;
-}
-
-@keyframes logoFloat {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-9px) rotate(2deg);
-  }
-}
-
-@keyframes logoGlow {
-  from {
-    filter: drop-shadow(0 0 3px rgba(0,229,255,.15));
-  }
-
-  to {
-    filter:
-      drop-shadow(0 0 12px rgba(0,229,255,.4))
-      drop-shadow(0 0 18px rgba(255,22,143,.2));
-  }
+    0 0 22px rgba(0,229,255,.22),
+    0 0 42px rgba(255,22,143,.12);
 }
 
 /* TITLE */
 
 h1 {
   margin-top: 20px;
-
   font-family: 'Inter', sans-serif;
   font-weight: 800;
   font-size: 44px;
@@ -193,43 +107,24 @@ h1 {
 
   background: linear-gradient(
     100deg,
-    var(--cyan),
-    var(--blue),
-    var(--purple),
-    var(--pink),
-    var(--orange),
-    var(--cyan)
+    var(--cyan) 0%,
+    var(--blue) 28%,
+    var(--purple) 52%,
+    var(--pink) 72%,
+    var(--orange) 100%
   );
-
-  background-size: 300% auto;
 
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 
-  animation:
-    gradientMove 6s linear infinite,
-    titleEntrance .9s ease-out both;
+  filter: drop-shadow(
+    0 0 15px rgba(0,229,255,.16)
+  );
 }
 
-@keyframes gradientMove {
-  to {
-    background-position: 300% center;
-  }
-}
-
-@keyframes titleEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-    filter: blur(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
+h1 span {
+  color: transparent;
 }
 
 .subtitle {
@@ -237,35 +132,18 @@ h1 {
   font-family: 'Inter', sans-serif;
   font-size: 18px;
   color: #aab7df;
-
-  animation: subtitleEntrance 1s ease-out .2s both;
-}
-
-@keyframes subtitleEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* MAIN CARD */
 
 .card {
-  position: relative;
-  overflow: hidden;
-
   margin-top: 34px;
   padding: 22px 20px;
 
   background: linear-gradient(
     145deg,
-    rgba(10,14,39,.96),
-    rgba(3,5,19,.97)
+    rgba(10,14,39,.94),
+    rgba(3,5,19,.96)
   );
 
   border: 1px solid var(--card-line);
@@ -275,65 +153,31 @@ h1 {
     0 0 30px rgba(0,120,255,.09),
     inset 0 0 24px rgba(124,44,255,.035);
 
-  animation: cardEntrance .9s cubic-bezier(.2,.8,.2,1) .15s both;
+  position: relative;
+  overflow: hidden;
 }
-
-@keyframes cardEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(28px) scale(.97);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ANIMATED TOP BORDER */
 
 .card::before {
   content: "";
   position: absolute;
-
   top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 2px;
+  left: 12%;
+  right: 12%;
+  height: 1px;
 
   background: linear-gradient(
     90deg,
     transparent,
     var(--cyan),
-    var(--blue),
-    var(--purple),
     var(--pink),
     var(--orange),
     transparent
   );
-
-  background-size: 250% 100%;
-  animation: borderMove 5s linear infinite;
 }
 
-@keyframes borderMove {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -150% 0;
-  }
-}
-
-/* BUTTONS */
+/* OPTION BUTTONS */
 
 .opt {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-
   width: 100%;
 
   display: flex;
@@ -344,8 +188,8 @@ h1 {
   padding: 18px 14px;
   margin-bottom: 14px;
 
-  background: rgba(7,10,29,.92);
-  border: 1px solid rgba(80,112,255,.3);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-line);
   border-radius: 16px;
 
   color: #f2f5ff;
@@ -355,38 +199,10 @@ h1 {
   cursor: pointer;
 
   transition:
-    transform .3s ease,
-    border-color .3s ease,
-    box-shadow .3s ease,
-    background .3s ease;
-}
-
-.opt::before {
-  content: "";
-  position: absolute;
-
-  top: 0;
-  left: -120%;
-
-  width: 65%;
-  height: 100%;
-
-  background: linear-gradient(
-    110deg,
-    transparent,
-    rgba(255,255,255,.13),
-    transparent
-  );
-
-  transform: skewX(-20deg);
-  transition: left .65s ease;
-
-  pointer-events: none;
-  z-index: -1;
-}
-
-.opt:hover::before {
-  left: 150%;
+    transform .2s,
+    border-color .2s,
+    box-shadow .2s,
+    background .2s;
 }
 
 .opt:hover,
@@ -400,30 +216,14 @@ h1 {
     rgba(255,22,143,.07)
   );
 
-  box-shadow:
-    0 0 12px rgba(0,229,255,.2),
-    0 0 25px rgba(124,44,255,.12);
-
-  transform: translateY(-3px);
-}
-
-.opt:active {
-  transform: scale(.97);
+  box-shadow: 0 0 18px rgba(0,229,255,.1);
+  transform: translateY(-1px);
 }
 
 .opt svg {
   width: 22px;
   height: 22px;
   flex: none;
-
-  transition:
-    transform .35s ease,
-    filter .35s ease;
-}
-
-.opt:hover svg {
-  transform: scale(1.15) rotate(-7deg);
-  filter: drop-shadow(0 0 5px var(--cyan));
 }
 
 .opt:disabled {
@@ -437,24 +237,10 @@ h1 {
   display: none;
   margin-bottom: 14px;
   text-align: center;
-
-  animation: panelEntrance .35s ease both;
 }
 
 .panel.show {
   display: block;
-}
-
-@keyframes panelEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* PHONE INPUT */
@@ -464,7 +250,7 @@ input {
   padding: 17px 16px;
 
   background: #050719;
-  border: 1px solid rgba(80,112,255,.3);
+  border: 1px solid var(--btn-line);
   border-radius: 14px;
 
   color: #fff;
@@ -473,20 +259,11 @@ input {
   text-align: center;
 
   outline: none;
-
-  transition:
-    border-color .3s ease,
-    box-shadow .3s ease,
-    background .3s ease;
 }
 
 input:focus {
-  background: #080b20;
   border-color: var(--cyan);
-
-  box-shadow:
-    0 0 0 3px rgba(0,229,255,.07),
-    0 0 20px rgba(0,229,255,.12);
+  box-shadow: 0 0 15px rgba(0,229,255,.09);
 }
 
 .hint {
@@ -498,9 +275,6 @@ input:focus {
 /* ACTION BUTTON */
 
 .go {
-  position: relative;
-  overflow: hidden;
-
   width: 100%;
   margin-top: 12px;
   padding: 16px;
@@ -513,7 +287,6 @@ input:focus {
   );
 
   color: #fff;
-
   border: 1px solid rgba(255,255,255,.13);
   border-radius: 14px;
 
@@ -525,51 +298,12 @@ input:focus {
 
   box-shadow: 0 7px 20px rgba(74,42,255,.16);
 
-  transition:
-    transform .25s ease,
-    box-shadow .25s ease,
-    filter .25s ease;
-}
-
-.go::after {
-  content: "";
-  position: absolute;
-
-  top: -50%;
-  left: -100%;
-
-  width: 55%;
-  height: 200%;
-
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255,255,255,.22),
-    transparent
-  );
-
-  transform: rotate(20deg);
-  transition: left .6s ease;
-
-  pointer-events: none;
-}
-
-.go:hover::after {
-  left: 150%;
+  transition: filter .2s, transform .2s;
 }
 
 .go:hover {
-  filter: brightness(1.15);
-
-  box-shadow:
-    0 0 16px rgba(8,124,255,.28),
-    0 0 25px rgba(255,22,143,.12);
-
-  transform: translateY(-2px);
-}
-
-.go:active {
-  transform: scale(.97);
+  filter: brightness(1.12);
+  transform: translateY(-1px);
 }
 
 .go:disabled {
@@ -581,7 +315,6 @@ input:focus {
 .go.ghost {
   background: rgba(4,8,26,.8);
   color: var(--cyan);
-
   border: 1px solid rgba(0,229,255,.55);
   box-shadow: none;
 }
@@ -611,20 +344,6 @@ input:focus {
   word-break: break-all;
 
   text-shadow: 0 0 14px rgba(0,229,255,.22);
-
-  animation: codeGlow 2.5s ease-in-out infinite alternate;
-}
-
-@keyframes codeGlow {
-  from {
-    box-shadow: 0 0 5px rgba(0,229,255,.04);
-  }
-
-  to {
-    box-shadow:
-      0 0 18px rgba(0,229,255,.12),
-      inset 0 0 15px rgba(124,44,255,.08);
-  }
 }
 
 /* QR CODE */
@@ -649,22 +368,6 @@ input:focus {
   border: 1px solid var(--cyan);
 }
 
-.qr.show img {
-  animation: qrEntrance .45s cubic-bezier(.2,.8,.2,1) both;
-}
-
-@keyframes qrEntrance {
-  from {
-    opacity: 0;
-    transform: scale(.85) rotate(-3deg);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-}
-
 .how {
   margin-top: 12px;
   font-size: 12px;
@@ -676,38 +379,22 @@ input:focus {
 
 .status {
   display: none;
-
   align-items: center;
   justify-content: center;
   gap: 9px;
 
   margin-top: 14px;
-
   font-size: 13px;
   color: var(--gray);
 }
 
 .status.show {
   display: flex;
-  animation: statusEntrance .3s ease both;
-}
-
-@keyframes statusEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .dot {
   width: 8px;
   height: 8px;
-
   border-radius: 50%;
   background: #555;
 }
@@ -719,19 +406,18 @@ input:focus {
 }
 
 .dot.ok {
-  background: var(--green);
-  box-shadow: 0 0 10px var(--green);
+  background: #42ffad;
+  box-shadow: 0 0 10px #42ffad;
 }
 
 .dot.bad {
-  background: var(--red);
-  box-shadow: 0 0 10px var(--red);
+  background: #ff426f;
+  box-shadow: 0 0 10px #ff426f;
 }
 
 @keyframes pulse {
   50% {
     opacity: .3;
-    transform: scale(.8);
   }
 }
 
@@ -740,29 +426,12 @@ input:focus {
 .err {
   display: none;
   margin-top: 12px;
-
   font-size: 13px;
   color: #ff6388;
   line-height: 1.6;
 }
 
-.err[style*="block"] {
-  animation: errorEntrance .3s ease both;
-}
-
-@keyframes errorEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* CONNECTED PANEL */
+/* CONNECTED */
 
 .done {
   display: none;
@@ -771,38 +440,13 @@ input:focus {
 
 .done.show {
   display: block;
-  animation: successEntrance .5s ease both;
-}
-
-@keyframes successEntrance {
-  from {
-    opacity: 0;
-    transform: scale(.94);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .done b {
   display: block;
   font-size: 20px;
-  color: var(--green);
+  color: #42ffad;
   margin-bottom: 10px;
-
-  animation: successGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes successGlow {
-  from {
-    text-shadow: 0 0 3px rgba(66,255,173,.2);
-  }
-
-  to {
-    text-shadow: 0 0 15px rgba(66,255,173,.55);
-  }
 }
 
 .done p {
@@ -823,15 +467,6 @@ input:focus {
 
   font-size: 14px;
   color: var(--gray);
-
-  transition:
-    border-color .3s ease,
-    box-shadow .3s ease;
-}
-
-.by:hover {
-  border-color: rgba(255,22,143,.4);
-  box-shadow: 0 0 15px rgba(255,22,143,.06);
 }
 
 .by b {
@@ -846,13 +481,9 @@ input:focus {
     var(--orange)
   );
 
-  background-size: 200% auto;
-
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-
-  animation: gradientMove 5s linear infinite;
 }
 
 /* FOOTER */
@@ -877,7 +508,6 @@ input:focus {
 }
 
 .foot a {
-  display: inline-block;
   text-decoration: none;
   margin: 0 5px;
 
@@ -891,12 +521,9 @@ input:focus {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-
-  transition: transform .25s ease;
 }
 
 .foot a:hover {
-  transform: translateY(-2px);
   text-decoration: underline;
 }
 
@@ -918,32 +545,20 @@ input:focus {
   .card {
     padding: 20px 15px;
   }
-
-  .logo {
-    width: 96px;
-    height: 96px;
-  }
 }
-
-/* ACCESSIBILITY */
 
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
+    animation: none !important;
+    transition: none !important;
   }
 }
 </style>
 </head>
 
 <body>
-
-<div class="ambient one"></div>
-<div class="ambient two"></div>
 
 <div class="wrap">
 
@@ -953,7 +568,7 @@ input:focus {
     alt="SILA MD"
   >
 
-  <h1>SILA MD</h1>
+  <h1><span>SILA</span> MD</h1>
 
   <p class="subtitle">Link your WhatsApp</p>
 
@@ -992,7 +607,7 @@ input:focus {
         >
 
         <p class="hint">
-          Country code first, digits only
+          country code first, digits only
         </p>
 
         <button class="go" id="codeGo" type="button">
@@ -1016,7 +631,7 @@ input:focus {
 
       </div>
 
-      <!-- QR CODE BUTTON -->
+      <!-- QR BUTTON -->
 
       <button class="opt" id="qrOpt" type="button">
 
@@ -1042,7 +657,7 @@ input:focus {
 
         <div class="qr" id="qrBox">
 
-          <img id="qrImage" alt="WhatsApp QR Code" src="">
+          <img id="qrImage" alt="QR code" src="">
 
           <p class="how">
             WhatsApp &gt; Settings &gt; Linked devices
@@ -1053,7 +668,7 @@ input:focus {
 
       </div>
 
-      <!-- STATUS -->
+      <!-- CONNECTION STATUS -->
 
       <div class="status" id="status">
         <span class="dot" id="dot"></span>
@@ -1062,19 +677,17 @@ input:focus {
 
       <div class="err" id="err"></div>
 
-      <!-- BRAND -->
-
       <div class="by" style="margin-top:14px">
         Created By: <b>SILA TECH</b>
       </div>
 
     </div>
 
-    <!-- CONNECTED PANEL -->
+    <!-- SUCCESS PANEL -->
 
     <div class="done" id="done">
 
-      <b>Connected Successfully!</b>
+      <b>Connected</b>
 
       <p>
         Your session ID is on its way to your WhatsApp
@@ -1082,7 +695,7 @@ input:focus {
       </p>
 
       <button class="go ghost" id="again" type="button">
-        Pair Another Number
+        Pair another number
       </button>
 
     </div>
@@ -1098,7 +711,7 @@ input:focus {
       <a
         href="https://whatsapp.com/channel/0029VbBG4gfISTkCpKxyMH02"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
       >Channel</a>
 
       |
@@ -1106,7 +719,7 @@ input:focus {
       <a
         href="https://chat.whatsapp.com/LexNEPHRmU96sOmZCIOK8G"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
       >Group</a>
 
     </div>
@@ -1202,13 +815,14 @@ function setStatus(s) {
   }
 
   statusText.textContent = v[0];
+
   dot.className = 'dot ' + v[1];
 
   statusEl.classList.add('show');
 }
 
-function showErr(message) {
-  errEl.textContent = message;
+function showErr(m) {
+  errEl.textContent = m;
   errEl.style.display = 'block';
 }
 
@@ -1219,14 +833,14 @@ function hideErr() {
 const digits = () =>
   phoneEl.value.replace(/\D/g, '');
 
-function fmt(code) {
+function fmt(c) {
 
-  const value = String(code || '')
+  const s = String(c || '')
     .replace(/[^A-Za-z0-9]/g, '');
 
-  return value.length === 8
-    ? value.slice(0, 4) + '-' + value.slice(4)
-    : (code || '----');
+  return s.length === 8
+    ? s.slice(0, 4) + '-' + s.slice(4)
+    : (c || '----');
 }
 
 function open(which) {
@@ -1279,41 +893,38 @@ async function check() {
 
   try {
 
-    const response = await fetch(
+    const r = await fetch(
       '/api/status?id=' + encodeURIComponent(key),
       { cache: 'no-store' }
     );
 
-    if (!response.ok) return;
+    if (!r.ok) return;
 
-    const data = await response.json();
+    const d = await r.json();
 
-    setStatus(data.status);
+    setStatus(d.status);
 
-    if (data.connected) {
-      finish();
-      return;
+    if (d.connected) {
+      return finish();
     }
 
-    if (mode === 'code' && data.pairingCode) {
+    if (mode === 'code' && d.pairingCode) {
 
       codeValue.textContent =
-        fmt(data.pairingCode);
+        fmt(d.pairingCode);
 
       codeResult.style.display = 'block';
     }
 
-    if (mode === 'qr' && data.qrDataUrl) {
+    if (mode === 'qr' && d.qrDataUrl) {
 
-      if (qrImage.src !== data.qrDataUrl) {
-        qrImage.src = data.qrDataUrl;
-      }
+      qrImage.src = d.qrDataUrl;
 
       qrBox.classList.add('show');
     }
 
-  } catch (error) {
-    // Polling will retry on the next interval.
+  } catch (e) {
+    // Status checking will retry automatically.
   }
 }
 
@@ -1341,16 +952,15 @@ async function requestCode() {
 
   const phone = digits();
 
-  if (phone.length < 7 || phone.length > 15) {
+  if (phone.length < 7) {
 
-    showErr(
-      'Enter a valid phone number with the country code.'
+    return showErr(
+      'Enter a valid number with the country code.'
     );
-
-    return;
   }
 
   codeGo.disabled = true;
+
   codeGo.textContent = 'Please wait...';
 
   codeResult.style.display = 'none';
@@ -1359,7 +969,7 @@ async function requestCode() {
 
   try {
 
-    const response = await fetch('/api/pair', {
+    const r = await fetch('/api/pair', {
 
       method: 'POST',
 
@@ -1371,12 +981,12 @@ async function requestCode() {
 
     });
 
-    const data = await response.json();
+    const d = await r.json();
 
-    if (!response.ok || data.success === false) {
+    if (!r.ok || d.success === false) {
 
       showErr(
-        data.error || 'Something went wrong.'
+        d.error || 'Something went wrong.'
       );
 
       setStatus('failed');
@@ -1385,10 +995,10 @@ async function requestCode() {
 
       key = phone;
 
-      if (data.pairingCode) {
+      if (d.pairingCode) {
 
         codeValue.textContent =
-          fmt(data.pairingCode);
+          fmt(d.pairingCode);
 
         codeResult.style.display = 'block';
       }
@@ -1398,7 +1008,7 @@ async function requestCode() {
       startPolling();
     }
 
-  } catch (error) {
+  } catch (e) {
 
     showErr('Cannot reach the server.');
 
@@ -1412,11 +1022,11 @@ async function requestCode() {
 
 codeGo.onclick = requestCode;
 
-phoneEl.addEventListener('keydown', event => {
+phoneEl.addEventListener('keydown', e => {
 
-  if (event.key === 'Enter') {
+  if (e.key === 'Enter') {
 
-    event.preventDefault();
+    e.preventDefault();
 
     requestCode();
   }
@@ -1434,7 +1044,7 @@ qrOpt.onclick = async () => {
 
   try {
 
-    const response = await fetch('/api/start-qr', {
+    const r = await fetch('/api/start-qr', {
 
       method: 'POST',
 
@@ -1453,23 +1063,23 @@ qrOpt.onclick = async () => {
 
     });
 
-    const data = await response.json();
+    const d = await r.json();
 
-    if (!response.ok || data.success === false) {
+    if (!r.ok || d.success === false) {
 
       showErr(
-        data.error || 'Could not generate QR.'
+        d.error || 'Could not generate QR.'
       );
 
       setStatus('failed');
 
     } else {
 
-      key = data.id;
+      key = d.id;
 
-      if (data.qrDataUrl) {
+      if (d.qrDataUrl) {
 
-        qrImage.src = data.qrDataUrl;
+        qrImage.src = d.qrDataUrl;
 
         qrBox.classList.add('show');
       }
@@ -1479,7 +1089,7 @@ qrOpt.onclick = async () => {
       startPolling();
     }
 
-  } catch (error) {
+  } catch (e) {
 
     showErr('Cannot reach the server.');
 
@@ -1489,19 +1099,19 @@ qrOpt.onclick = async () => {
   qrOpt.disabled = false;
 };
 
-/* COPY CODE */
+/* COPY PAIRING CODE */
 
 $('copyBtn').onclick = async () => {
 
-  const code = codeValue.textContent.trim();
+  const c = codeValue.textContent.trim();
 
-  if (!code || code === '----') return;
+  if (!c || c === '----') return;
 
   try {
 
-    await navigator.clipboard.writeText(code);
+    await navigator.clipboard.writeText(c);
 
-    $('copyBtn').textContent = 'Copied!';
+    $('copyBtn').textContent = 'Copied';
 
     setTimeout(() => {
 
@@ -1509,10 +1119,10 @@ $('copyBtn').onclick = async () => {
 
     }, 1500);
 
-  } catch (error) {
+  } catch (e) {
 
     showErr(
-      'Copy failed. Please copy the code manually.'
+      'Copy failed, copy the code manually.'
     );
   }
 };
