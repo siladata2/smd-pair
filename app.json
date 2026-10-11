@@ -1,0 +1,21 @@
+{
+  "name": "mini-heroku",
+  "description": "Simple Heroku bot deployment panel",
+  "repository": "",
+  "keywords": [
+    "heroku",
+    "bot",
+    "deployment",
+    "nodejs"
+  ],
+    "PORT": {
+      "description": "Server port",
+      "value": "3000"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
