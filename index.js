@@ -1,6 +1,10 @@
 // ============================================================
 // SILA MD — PAIRING + SESSION SERVER
 // Created By Sila Tech
+//
+// Two Baileys builds are used:
+//   @whiskeysockets/baileys  -> pairing (code / QR) + session capture
+//   @itsliaaa/baileys        -> ONLY for the copy-session button
 // ============================================================
 
 require('dotenv').config();
@@ -24,6 +28,8 @@ const config = require('./config.js');
 const logger = pino({ level: 'silent' });
 const accounts = new Map();
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 // ============================================================
 // ACCOUNT HELPERS
 // ============================================================
@@ -32,31 +38,56 @@ function normalizePhone(phone) {
   return String(phone || '').replace(/\D/g, '');
 }
 
-function getAccount(phoneNumber) {
-  const phone = normalizePhone(phoneNumber);
+// QR pairing needs no phone number, so it gets a random numeric id
+function newQrId() {
+  return (
+    String(Date.now()) +
+    String(Math.floor(Math.random() * 1e6)).padStart(6, '0')
+  );
+}
 
-  if (!phone) return null;
+function getAccount(key, mode = 'code') {
+  const id = normalizePhone(key);
 
-  if (!accounts.has(phone)) {
-    accounts.set(phone, {
-      phone,
+  if (!id) return null;
+
+  if (!accounts.has(id)) {
+    const sessionDir = path.join(__dirname, 'sessions', id);
+
+    accounts.set(id, {
+      key: id,
+      phone: id,
+      mode,
       status: 'idle',
       isConnecting: false,
       sock: null,
       pairingCode: null,
       qrDataUrl: null,
-      sessionDir: path.join(__dirname, 'sessions', phone),
-      sessionSentFlag: path.join(
-        __dirname,
-        'sessions',
-        phone,
-        '.session_sent'
-      ),
+      sessionDir,
+      sessionSentFlag: path.join(sessionDir, '.session_sent'),
       stopAfterSession: false
     });
   }
 
-  return accounts.get(phone);
+  return accounts.get(id);
+}
+
+function destroyAccount(key) {
+  const account = accounts.get(key);
+
+  if (!account) return;
+
+  account.stopAfterSession = true;
+
+  try {
+    if (account.sock) account.sock.end(undefined);
+  } catch {}
+
+  try {
+    fs.rmSync(account.sessionDir, { recursive: true, force: true });
+  } catch {}
+
+  accounts.delete(key);
 }
 
 // ============================================================
@@ -68,9 +99,7 @@ function collectSessionFiles(dir, baseDir = dir) {
 
   if (!fs.existsSync(dir)) return files;
 
-  for (const entry of fs.readdirSync(dir, {
-    withFileTypes: true
-  })) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
@@ -104,6 +133,7 @@ function createSessionId(account) {
     Buffer.from(JSON.stringify(payload), 'utf8')
   );
 
+  // prefix is exactly "SILA", nothing in front of it
   return config.sessionPrefix + compressed.toString('base64');
 }
 
@@ -112,10 +142,7 @@ function clearAccountSession(account) {
 
   try {
     if (fs.existsSync(account.sessionDir)) {
-      fs.rmSync(account.sessionDir, {
-        recursive: true,
-        force: true
-      });
+      fs.rmSync(account.sessionDir, { recursive: true, force: true });
     }
   } catch {}
 
@@ -157,20 +184,133 @@ function waitFor(condition, timeoutMs = 30000, intervalMs = 250) {
 }
 
 // ============================================================
-// SEND SESSION ID
+// MESSAGES (plain symbols only, no emojis)
+// ============================================================
+
+function buildInfoMessage(number) {
+  return [
+    '◈ ━━━━━━━━━━━━━━━━━━ ◈',
+    '   S I L A   M D',
+    '   session  generated',
+    '◈ ━━━━━━━━━━━━━━━━━━ ◈',
+    '',
+    `▸ number  :: ${number}`,
+    `▸ format  :: ${config.sessionPrefix}`,
+    '',
+    '▸ Keep this ID private.',
+    '▸ Anyone who holds it controls your bot.',
+    '',
+    '═══════════════════',
+    `» channel :: ${config.channelLink}`,
+    `» group   :: ${config.groupLink}`,
+    '═══════════════════',
+    '',
+    '  ::  Created By Sila Tech  ::'
+  ].join('\n');
+}
+
+// ============================================================
+// COPY BUTTON  (uses @itsliaaa/baileys, only for this)
+// ============================================================
+
+async function loadButtonLib() {
+  // dynamic import works for both ESM and CJS builds
+  const mod = await import('@itsliaaa/baileys');
+  const lib =
+    mod.default && (mod.default.makeWASocket || mod.default.useMultiFileAuthState)
+      ? mod.default
+      : mod;
+
+  const makeSock =
+    typeof lib.default === 'function'
+      ? lib.default
+      : lib.makeWASocket || mod.makeWASocket || mod.default;
+
+  const useAuth = lib.useMultiFileAuthState || mod.useMultiFileAuthState;
+  const keyStore =
+    lib.makeCacheableSignalKeyStore || mod.makeCacheableSignalKeyStore;
+
+  if (typeof makeSock !== 'function' || !useAuth) {
+    throw new Error('@itsliaaa/baileys exports not recognised');
+  }
+
+  return { makeSock, useAuth, keyStore };
+}
+
+async function sendCopyButton(account, sessionId, number) {
+  const { makeSock, useAuth, keyStore } = await loadButtonLib();
+
+  const { state, saveCreds } = await useAuth(account.sessionDir);
+
+  const sock = makeSock({
+    auth: {
+      creds: state.creds,
+      keys: keyStore ? keyStore(state.keys, logger) : state.keys
+    },
+    browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
+    printQRInTerminal: false,
+    logger
+  });
+
+  sock.ev.on('creds.update', saveCreds);
+
+  try {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error('button socket timeout')),
+        30000
+      );
+
+      sock.ev.on('connection.update', update => {
+        if (update.connection === 'open') {
+          clearTimeout(timer);
+          resolve();
+        }
+
+        if (update.connection === 'close') {
+          clearTimeout(timer);
+          reject(new Error('button socket closed'));
+        }
+      });
+    });
+
+    await sleep(1500);
+
+    await sock.sendMessage(`${number}@s.whatsapp.net`, {
+      text: buildInfoMessage(number),
+      footer: 'SILA MD  //  Sila Tech',
+      interactiveButtons: [
+        {
+          name: 'cta_copy',
+          buttonParamsJson: JSON.stringify({
+            display_text: 'Copy Session',
+            copy_code: sessionId
+          })
+        }
+      ]
+    });
+
+    await sleep(2500);
+  } finally {
+    try {
+      sock.end(undefined);
+    } catch {}
+  }
+}
+
+// ============================================================
+// SEND SESSION ID (plain text, via the pairing socket)
 // ============================================================
 
 async function handlePostConnect(sock, account) {
   try {
     if (fs.existsSync(account.sessionSentFlag)) {
-      return true;
+      return { ok: true, sessionId: null };
     }
 
-    console.log(
-      `[Session:${account.phone}] Waiting for credentials...`
-    );
+    console.log(`[Session:${account.phone}] Waiting for credentials...`);
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await sleep(3000);
 
     const sessionId = createSessionId(account);
 
@@ -180,33 +320,13 @@ async function handlePostConnect(sock, account) {
 
     const selfJid = sock.user?.id;
 
-    if (!selfJid) return false;
+    if (!selfJid) return { ok: false, sessionId: null };
 
-    await sock.sendMessage(selfJid, {
-      text: sessionId
-    });
+    await sock.sendMessage(selfJid, { text: sessionId });
 
-    await new Promise(resolve => setTimeout(resolve, 1200));
+    await sleep(1200);
 
-    const message =
-      `╭━━〔 SILA MD SESSION 〕━━╮\n` +
-      `✅ *SESSION ID GENERATED SUCCESSFULLY*\n` +
-      `▬▬▬▬▬▬▬▬▬▬▬▬\n` +
-      `⚠️ Never share your Session ID with anyone.\n\n` +
-      `📢 *Channel:*\n${config.channelLink}\n\n` +
-      `👥 *Group:*\n${config.groupLink}\n` +
-      `▬▬▬▬▬▬▬▬▬▬▬▬\n` +
-      `🧑‍💻 Deploy your bot on any panel.\n` +
-      `_Created By Sila Tech_\n` +
-      `╰━━━━━━━━━━━━━━╯`;
-
-    await sock.sendMessage(selfJid, {
-      text: message
-    });
-
-    fs.mkdirSync(account.sessionDir, {
-      recursive: true
-    });
+    fs.mkdirSync(account.sessionDir, { recursive: true });
 
     fs.writeFileSync(
       account.sessionSentFlag,
@@ -214,14 +334,12 @@ async function handlePostConnect(sock, account) {
       'utf8'
     );
 
-    console.log(
-      `[Session:${account.phone}] Session ID sent successfully.`
-    );
+    console.log(`[Session:${account.phone}] Session ID sent successfully.`);
 
-    return true;
+    return { ok: true, sessionId };
   } catch (error) {
     console.error('[Session] Failed:', error.message);
-    return false;
+    return { ok: false, sessionId: null };
   }
 }
 
@@ -229,9 +347,9 @@ async function handlePostConnect(sock, account) {
 // CONNECT WHATSAPP
 // ============================================================
 
-async function connect(phoneNumber) {
-  const phone = normalizePhone(phoneNumber);
-  const account = getAccount(phone);
+async function connect(key) {
+  const id = normalizePhone(key);
+  const account = accounts.get(id);
 
   if (!account || account.isConnecting) return;
 
@@ -240,13 +358,12 @@ async function connect(phoneNumber) {
 
   try {
     if (!fs.existsSync(account.sessionDir)) {
-      fs.mkdirSync(account.sessionDir, {
-        recursive: true
-      });
+      fs.mkdirSync(account.sessionDir, { recursive: true });
     }
 
-    const { state, saveCreds } =
-      await useMultiFileAuthState(account.sessionDir);
+    const { state, saveCreds } = await useMultiFileAuthState(
+      account.sessionDir
+    );
 
     let version;
 
@@ -256,18 +373,13 @@ async function connect(phoneNumber) {
       version = [2, 3000, 1017546695];
     }
 
-    console.log(
-      `[Bot:${phone}] Registered: ${state.creds.registered}`
-    );
+    console.log(`[Bot:${id}] Mode: ${account.mode} | Registered: ${state.creds.registered}`);
 
     const sock = makeWASocket({
       version,
       auth: {
         creds: state.creds,
-        keys: makeCacheableSignalKeyStore(
-          state.keys,
-          logger
-        )
+        keys: makeCacheableSignalKeyStore(state.keys, logger)
       },
       browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
       printQRInTerminal: false,
@@ -279,68 +391,72 @@ async function connect(phoneNumber) {
     sock.ev.on('creds.update', saveCreds);
 
     sock.ev.on('connection.update', async update => {
-      const {
-        connection,
-        lastDisconnect,
-        qr
-      } = update;
+      const { connection, lastDisconnect, qr } = update;
 
-      const statusCode =
-        lastDisconnect?.error?.output?.statusCode;
+      const statusCode = lastDisconnect?.error?.output?.statusCode;
 
-      if (qr) {
-        account.qrDataUrl = await QRCode.toDataURL(qr, {
-          width: 300
-        });
-
+      if (qr && account.mode === 'qr') {
+        account.qrDataUrl = await QRCode.toDataURL(qr, { width: 300 });
         account.pairingCode = null;
         account.status = 'qr_ready';
 
-        console.log(`[Bot:${phone}] QR ready.`);
+        console.log(`[Bot:${id}] QR ready.`);
       }
 
       if (connection === 'open') {
-        console.log(`[Bot:${phone}] WhatsApp connected.`);
+        console.log(`[Bot:${id}] WhatsApp connected.`);
+
+        // learn the real number (needed for QR, where none was typed)
+        const real = normalizePhone(
+          String(sock.user?.id || '').split('@')[0].split(':')[0]
+        );
+
+        if (real) account.phone = real;
 
         account.status = 'connected';
         account.isConnecting = false;
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await sleep(3000);
 
-        // ----------------------------------------------------
-        // GENERATE AND SEND SESSION ID
-        // ----------------------------------------------------
+        const result = await handlePostConnect(sock, account);
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        const sent = await handlePostConnect(sock, account);
-
-        if (sent) {
+        if (result.ok) {
           account.stopAfterSession = true;
 
-          console.log(
-            `[Bot:${phone}] Session captured. Closing pairing socket.`
-          );
+          console.log(`[Bot:${id}] Session captured. Closing pairing socket.`);
 
           try {
             sock.end(undefined);
           } catch {}
 
           account.sock = null;
+
+          // second library: send the info message with the copy button
+          if (result.sessionId) {
+            try {
+              await sleep(1500);
+              await sendCopyButton(account, result.sessionId, account.phone);
+              console.log(`[Bot:${id}] Copy button message sent.`);
+            } catch (error) {
+              console.error(
+                `[Bot:${id}] Copy button failed:`,
+                error.message
+              );
+            }
+          }
+
           account.status = 'session_ready';
         }
       }
 
       if (connection === 'close') {
-        console.log(`[Bot:${phone}] Connection closed.`);
+        console.log(`[Bot:${id}] Connection closed.`);
 
         account.sock = null;
         account.isConnecting = false;
 
         if (account.stopAfterSession) {
-          console.log(
-            `[Bot:${phone}] Pairing socket stopped intentionally.`
-          );
+          console.log(`[Bot:${id}] Pairing socket stopped intentionally.`);
           return;
         }
 
@@ -354,30 +470,36 @@ async function connect(phoneNumber) {
 
         account.status = 'disconnected';
 
+        // WhatsApp asks for a restart right after a QR scan / pairing
+        const delay =
+          statusCode === DisconnectReason.restartRequired ? 500 : 5000;
+
         if (config.autoReconnect) {
           setTimeout(() => {
-            const current = accounts.get(phone);
+            const current = accounts.get(id);
 
             if (
               current &&
               current.status !== 'connected' &&
+              current.status !== 'session_ready' &&
               !current.isConnecting
             ) {
-              connect(phone).catch(() => {});
+              connect(id).catch(() => {});
             }
-          }, 5000);
+          }, delay);
         }
       }
     });
 
-    if (!state.creds.registered) {
+    // pairing code is only requested in "code" mode
+    if (!state.creds.registered && account.mode === 'code') {
       account.status = 'generating_code';
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await sleep(1500);
 
-      console.log(`[Bot:${phone}] Requesting pairing code...`);
+      console.log(`[Bot:${id}] Requesting pairing code...`);
 
-      const code = await sock.requestPairingCode(phone);
+      const code = await sock.requestPairingCode(id);
 
       const formatted =
         String(code)
@@ -388,10 +510,10 @@ async function connect(phoneNumber) {
       account.pairingCode = formatted;
       account.status = 'waiting_approval';
 
-      console.log(`[Bot:${phone}] Pairing code: ${formatted}`);
+      console.log(`[Bot:${id}] Pairing code: ${formatted}`);
     }
   } catch (error) {
-    console.error(`[Bot:${phone}] Fatal:`, error.message);
+    console.error(`[Bot:${id}] Fatal:`, error.message);
 
     account.status = 'failed';
     account.sock = null;
@@ -406,28 +528,19 @@ async function connect(phoneNumber) {
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
-
-app.use(express.static(
-  path.join(__dirname, 'public')
-));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (req, res) => {
   res.send('SILA MD Pairing Server Running');
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(
-    path.join(__dirname, 'public', 'index.html')
-  );
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/pair', (req, res) => {
-  res.sendFile(
-    path.join(__dirname, 'public', 'index.html')
-  );
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/api/info', (req, res) => {
@@ -440,37 +553,36 @@ app.get('/api/info', (req, res) => {
   });
 });
 
+// "phone" is a phone number (code mode) or a QR id (qr mode)
 app.get('/api/status', (req, res) => {
-  const phone = normalizePhone(req.query.phone);
+  const key = normalizePhone(req.query.id || req.query.phone);
 
-  if (!phone) {
+  if (!key) {
     return res.json({
       status: 'idle',
       connected: false,
       pairingCode: null,
-      qrDataUrl: null,
-      phone: null
+      qrDataUrl: null
     });
   }
 
-  const account = accounts.get(phone);
+  const account = accounts.get(key);
 
   if (!account) {
     return res.json({
       status: 'session_not_found',
       connected: false,
       pairingCode: null,
-      qrDataUrl: null,
-      phone
+      qrDataUrl: null
     });
   }
 
   return res.json({
     status: account.status,
-    connected: account.status === 'connected',
+    connected:
+      account.status === 'connected' || account.status === 'session_ready',
     pairingCode: account.pairingCode || null,
-    qrDataUrl: account.qrDataUrl || null,
-    phone
+    qrDataUrl: account.qrDataUrl || null
   });
 });
 
@@ -484,7 +596,7 @@ app.post('/api/pair', async (req, res) => {
     });
   }
 
-  const account = getAccount(clean);
+  const account = getAccount(clean, 'code');
 
   if (account.status === 'connected') {
     return res.status(400).json({
@@ -495,10 +607,8 @@ app.post('/api/pair', async (req, res) => {
 
   if (
     account.pairingCode &&
-    (
-      account.status === 'waiting_approval' ||
-      account.status === 'pairing_code_ready'
-    )
+    (account.status === 'waiting_approval' ||
+      account.status === 'pairing_code_ready')
   ) {
     return res.json({
       success: true,
@@ -530,6 +640,7 @@ app.post('/api/pair', async (req, res) => {
     });
   }
 
+  account.mode = 'code';
   account.pairingCode = null;
   account.qrDataUrl = null;
   account.status = 'generating_code';
@@ -558,39 +669,48 @@ app.post('/api/pair', async (req, res) => {
   });
 });
 
+// QR: no phone number needed. Returns an id the page polls with.
 app.post('/api/start-qr', async (req, res) => {
-  const clean = normalizePhone(req.body.phone);
+  // drop the previous unused QR session of this visitor, if any
+  const previous = normalizePhone(req.body?.id);
 
-  if (!clean || clean.length < 7) {
-    return res.status(400).json({
-      success: false,
-      error: 'Valid number required'
-    });
+  if (previous && accounts.get(previous)?.mode === 'qr') {
+    const old = accounts.get(previous);
+
+    if (old.status !== 'connected' && old.status !== 'session_ready') {
+      destroyAccount(previous);
+    }
   }
 
-  const account = getAccount(clean);
+  const id = newQrId();
+  const account = getAccount(id, 'qr');
 
-  if (account.status === 'connected') {
-    return res.status(400).json({
-      success: false,
-      error: 'Already connected'
-    });
-  }
-
-  account.pairingCode = null;
-  account.qrDataUrl = null;
   account.status = 'connecting';
-  account.stopAfterSession = false;
 
-  connect(clean).catch(() => {});
+  connect(id).catch(() => {});
+
+  // an unfinished QR session is removed after 3 minutes
+  setTimeout(() => {
+    const current = accounts.get(id);
+
+    if (
+      current &&
+      current.status !== 'connected' &&
+      current.status !== 'session_ready'
+    ) {
+      destroyAccount(id);
+    }
+  }, 3 * 60 * 1000);
 
   const qr = await waitFor(
-    () => accounts.get(clean)?.qrDataUrl || null,
-    15000,
+    () => accounts.get(id)?.qrDataUrl || null,
+    20000,
     300
   );
 
   if (!qr) {
+    destroyAccount(id);
+
     return res.status(408).json({
       success: false,
       error: 'Timeout waiting QR'
@@ -599,28 +719,9 @@ app.post('/api/start-qr', async (req, res) => {
 
   return res.json({
     success: true,
-    phone: clean,
+    id,
     qrDataUrl: qr,
     status: 'qr_ready'
-  });
-});
-
-app.get('/api/qr', (req, res) => {
-  const phone = normalizePhone(req.query.phone);
-  const account = accounts.get(phone);
-
-  if (!account || !account.qrDataUrl) {
-    return res.status(404).json({
-      success: false,
-      error: 'No QR'
-    });
-  }
-
-  return res.json({
-    success: true,
-    phone,
-    qrDataUrl: account.qrDataUrl,
-    status: account.status
   });
 });
 
@@ -629,22 +730,16 @@ app.get('/api/qr', (req, res) => {
 // ============================================================
 
 async function start() {
-  console.log(
-    '\nSILA MD PAIRING SERVER — Created By Sila Tech\n'
-  );
+  console.log('\nSILA MD PAIRING SERVER — Created By Sila Tech\n');
 
   const sessionsDir = path.join(__dirname, 'sessions');
 
   if (!fs.existsSync(sessionsDir)) {
-    fs.mkdirSync(sessionsDir, {
-      recursive: true
-    });
+    fs.mkdirSync(sessionsDir, { recursive: true });
   }
 
   app.listen(config.port, () => {
-    console.log(
-      `[Server] Running on port ${config.port}`
-    );
+    console.log(`[Server] Running on port ${config.port}`);
   });
 }
 
