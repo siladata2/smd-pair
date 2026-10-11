@@ -1,7 +1,7 @@
 {
-  "name": "mufaser-x-private",
+  "name": "sila-md-pair",
   "version": "1.0.0",
-  "description": "MUFASER-X Private Pairing & Session Server by ROMA-TECH",
+  "description": "SILA MD Pairing & Session Server — Created By Sila Tech",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,10 +9,10 @@
   "keywords": [
     "whatsapp",
     "baileys",
-    "mufaser-x",
+    "sila-md",
     "pairing"
   ],
-  "author": "ROMA-TECH",
+  "author": "Sila Tech",
   "license": "MIT",
   "dependencies": {
     "@whiskeysockets/baileys": "6.7.23",
