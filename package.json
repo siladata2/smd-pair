@@ -22,7 +22,7 @@
     "pino": "8.15.0",
     "qrcode": "1.5.3",
     "axios": "1.6.0",
-    "@itsliaaa/baileys": "github:itsliaaa/baileys"
+    "baileys": "github:raoltech/baileys"
   },
   "engines": {
     "node": "20.x"
