@@ -1,12 +1,12 @@
 // ============================================================
 // SILA MD — PAIRING + SESSION SERVER
 // Created By Sila Tech
-//
-// 
+// Uses @whiskeysockets/baileys + raoltech/baileys
 // ============================================================
 
 require('dotenv').config();
 
+// @whiskeysockets/baileys — main socket
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -36,7 +36,6 @@ function normalizePhone(phone) {
   return String(phone || '').replace(/\D/g, '');
 }
 
-// QR pairing needs no phone number, so it gets a random numeric id
 function newQrId() {
   return (
     String(Date.now()) +
@@ -46,7 +45,6 @@ function newQrId() {
 
 function getAccount(key, mode = 'code') {
   const id = normalizePhone(key);
-
   if (!id) return null;
 
   if (!accounts.has(id)) {
@@ -72,7 +70,6 @@ function getAccount(key, mode = 'code') {
 
 function destroyAccount(key) {
   const account = accounts.get(key);
-
   if (!account) return;
 
   account.stopAfterSession = true;
@@ -94,7 +91,6 @@ function destroyAccount(key) {
 
 function collectSessionFiles(dir, baseDir = dir) {
   const files = [];
-
   if (!fs.existsSync(dir)) return files;
 
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -115,10 +111,7 @@ function collectSessionFiles(dir, baseDir = dir) {
 
 function createSessionId(account) {
   const files = collectSessionFiles(account.sessionDir);
-
-  if (!files.length) {
-    throw new Error('No auth files');
-  }
+  if (!files.length) throw new Error('No auth files');
 
   const payload = {
     format: 'SILA-MD-SESSION',
@@ -131,7 +124,6 @@ function createSessionId(account) {
     Buffer.from(JSON.stringify(payload), 'utf8')
   );
 
-  // prefix is exactly "SILA", nothing in front of it
   return config.sessionPrefix + compressed.toString('base64');
 }
 
@@ -163,12 +155,10 @@ function waitFor(condition, timeoutMs = 30000, intervalMs = 250) {
     const interval = setInterval(() => {
       try {
         const value = condition();
-
         if (value) {
           clearInterval(interval);
           return resolve(value);
         }
-
         if (Date.now() - start >= timeoutMs) {
           clearInterval(interval);
           return resolve(null);
@@ -182,97 +172,82 @@ function waitFor(condition, timeoutMs = 30000, intervalMs = 250) {
 }
 
 // ============================================================
-// MESSAGES (plain symbols only, no emojis)
+// MESSAGE BUILDERS
 // ============================================================
 
-function buildInfoMessage(number) {
+function buildSessionMessage() {
   return [
     '◈ ━━━━━━━━━━━━━━━━━━ ◈',
     '   S I L A   M D',
-    '   session  generated',
+    '   session  id',
     '◈ ━━━━━━━━━━━━━━━━━━ ◈',
     '',
+    '▸ Tap the button below to copy.',
     '▸ Keep this ID private.',
-    '▸ Follow us.',
     '',
-    '═══════════════════',
+    '  ::  Created By Sila Tech  ::'
+  ].join('\n');
+}
+
+function buildLinksMessage() {
+  return [
+    '◈ ━━━━━━━━━━━━━━━━━━ ◈',
+    '   S I L A   M D',
+    '   links',
+    '◈ ━━━━━━━━━━━━━━━━━━ ◈',
+    '',
     `» channel :: ${config.channelLink}`,
     `» group   :: ${config.groupLink}`,
-    '═══════════════════',
     '',
     '  ::  Created By Sila Tech  ::'
   ].join('\n');
 }
 
 // ============================================================
-// COPY BUTTON  (uses @itsliaaa/baileys, only for this)
+// SEND SESSION MESSAGE WITH COPY BUTTON (raoltech/baileys)
 // ============================================================
 
-async function loadButtonLib() {
-  // dynamic import works for both ESM and CJS builds
-  const mod = await import('@baileys');
-  const lib =
-    mod.default && (mod.default.makeWASocket || mod.default.useMultiFileAuthState)
-      ? mod.default
-      : mod;
-
-  const makeSock =
-    typeof lib.default === 'function'
-      ? lib.default
-      : lib.makeWASocket || mod.makeWASocket || mod.default;
-
-  const useAuth = lib.useMultiFileAuthState || mod.useMultiFileAuthState;
-  const keyStore =
-    lib.makeCacheableSignalKeyStore || mod.makeCacheableSignalKeyStore;
-
-  if (typeof makeSock !== 'function' || !useAuth) {
-    throw new Error('@itsliaaa/baileys exports not recognised');
-  }
-
-  return { makeSock, useAuth, keyStore };
-}
-
-async function sendCopyButton(account, sessionId, number) {
-  const { makeSock, useAuth, keyStore } = await loadButtonLib();
-
-  const { state, saveCreds } = await useAuth(account.sessionDir);
-
-  const sock = makeSock({
-    auth: {
-      creds: state.creds,
-      keys: keyStore ? keyStore(state.keys, logger) : state.keys
-    },
-    browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
-    printQRInTerminal: false,
-    logger
-  });
-
-  sock.ev.on('creds.update', saveCreds);
-
+async function sendSessionWithCopyButton(account, sessionId, number) {
   try {
+    // Use baileys from raoltech ONLY for buttons
+    const raoltech = require('baileys');
+
+    const { state, saveCreds } = await useMultiFileAuthState(account.sessionDir);
+
+    const sock = makeWASocket({
+      auth: {
+        creds: state.creds,
+        keys: makeCacheableSignalKeyStore(state.keys, logger)
+      },
+      browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
+      printQRInTerminal: false,
+      logger
+    });
+
+    sock.ev.on('creds.update', saveCreds);
+
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(
-        () => reject(new Error('button socket timeout')),
-        30000
-      );
+      const timer = setTimeout(() => reject(new Error('timeout')), 30000);
 
       sock.ev.on('connection.update', update => {
         if (update.connection === 'open') {
           clearTimeout(timer);
           resolve();
         }
-
         if (update.connection === 'close') {
           clearTimeout(timer);
-          reject(new Error('button socket closed'));
+          reject(new Error('closed'));
         }
       });
     });
 
     await sleep(1500);
 
-    await sock.sendMessage(`${number}@s.whatsapp.net`, {
-      text: buildInfoMessage(number),
+    const jid = `${number}@s.whatsapp.net`;
+
+    // -------- MESSAGE 1: Session ID + Copy Button --------
+    const sessionMsg = await sock.sendMessage(jid, {
+      text: buildSessionMessage(),
       footer: 'SILA MD  //  Sila Tech',
       interactiveButtons: [
         {
@@ -285,16 +260,84 @@ async function sendCopyButton(account, sessionId, number) {
       ]
     });
 
+    await sleep(1500);
+
+    // -------- MESSAGE 2: Reply to session message with links --------
+    await sock.sendMessage(
+      jid,
+      {
+        text: buildLinksMessage()
+      },
+      { quoted: sessionMsg }
+    );
+
     await sleep(2500);
-  } finally {
+
     try {
       sock.end(undefined);
     } catch {}
+
+  } catch (error) {
+    console.error('[CopyButton] Failed:', error.message);
   }
 }
 
 // ============================================================
-// SEND SESSION ID (plain text, via the pairing socket)
+// AUTO FOLLOW CHANNEL + AUTO JOIN GROUP
+// ============================================================
+
+async function autoFollowChannel(sock) {
+  try {
+    if (!config.channelLink) return false;
+
+    // Extract channel JID from link
+    const match = config.channelLink.match(/channel\/([0-9A-Za-z]+)/);
+    if (!match) return false;
+
+    const channelJid = `${match[1]}@newsletter`;
+
+    await sock.newsletterFollow(channelJid);
+    console.log(`[Auto] Followed channel: ${channelJid}`);
+    return true;
+  } catch (error) {
+    console.error('[Auto] Channel follow failed:', error.message);
+    return false;
+  }
+}
+
+async function autoJoinGroup(sock) {
+  try {
+    if (!config.groupLink) return false;
+
+    // Extract invite code from group link
+    const match = config.groupLink.match(/([A-Za-z0-9]{20,})/);
+    if (!match) return false;
+
+    const inviteCode = match[1];
+
+    await sock.groupAcceptInvite(inviteCode);
+    console.log(`[Auto] Joined group via code: ${inviteCode}`);
+    return true;
+  } catch (error) {
+    console.error('[Auto] Group join failed:', error.message);
+    return false;
+  }
+}
+
+async function autoActions(sock) {
+  await sleep(2000);
+
+  // Follow channel
+  await autoFollowChannel(sock);
+
+  await sleep(1000);
+
+  // Join group
+  await autoJoinGroup(sock);
+}
+
+// ============================================================
+// SEND SESSION ID (plain text first, then copy button)
 // ============================================================
 
 async function handlePostConnect(sock, account) {
@@ -314,15 +357,13 @@ async function handlePostConnect(sock, account) {
     );
 
     const selfJid = sock.user?.id;
-
     if (!selfJid) return { ok: false, sessionId: null };
 
+    // Send raw session ID as plain text (so it can be copied manually as backup)
     await sock.sendMessage(selfJid, { text: sessionId });
-
     await sleep(1200);
 
     fs.mkdirSync(account.sessionDir, { recursive: true });
-
     fs.writeFileSync(
       account.sessionSentFlag,
       new Date().toISOString(),
@@ -356,19 +397,18 @@ async function connect(key) {
       fs.mkdirSync(account.sessionDir, { recursive: true });
     }
 
-    const { state, saveCreds } = await useMultiFileAuthState(
-      account.sessionDir
-    );
+    const { state, saveCreds } = await useMultiFileAuthState(account.sessionDir);
 
     let version;
-
     try {
       version = (await fetchLatestBaileysVersion()).version;
     } catch {
       version = [2, 3000, 1017546695];
     }
 
-    console.log(`[Bot:${id}] Mode: ${account.mode} | Registered: ${state.creds.registered}`);
+    console.log(
+      `[Bot:${id}] Mode: ${account.mode} | Registered: ${state.creds.registered}`
+    );
 
     const sock = makeWASocket({
       version,
@@ -382,30 +422,25 @@ async function connect(key) {
     });
 
     account.sock = sock;
-
     sock.ev.on('creds.update', saveCreds);
 
     sock.ev.on('connection.update', async update => {
       const { connection, lastDisconnect, qr } = update;
-
       const statusCode = lastDisconnect?.error?.output?.statusCode;
 
       if (qr && account.mode === 'qr') {
         account.qrDataUrl = await QRCode.toDataURL(qr, { width: 300 });
         account.pairingCode = null;
         account.status = 'qr_ready';
-
         console.log(`[Bot:${id}] QR ready.`);
       }
 
       if (connection === 'open') {
         console.log(`[Bot:${id}] WhatsApp connected.`);
 
-        // learn the real number (needed for QR, where none was typed)
         const real = normalizePhone(
           String(sock.user?.id || '').split('@')[0].split(':')[0]
         );
-
         if (real) account.phone = real;
 
         account.status = 'connected';
@@ -413,11 +448,15 @@ async function connect(key) {
 
         await sleep(3000);
 
+        // Auto follow + join
+        await autoActions(sock);
+
+        await sleep(2000);
+
         const result = await handlePostConnect(sock, account);
 
         if (result.ok) {
           account.stopAfterSession = true;
-
           console.log(`[Bot:${id}] Session captured. Closing pairing socket.`);
 
           try {
@@ -426,17 +465,17 @@ async function connect(key) {
 
           account.sock = null;
 
-          // second library: send the info message with the copy button
           if (result.sessionId) {
             try {
               await sleep(1500);
-              await sendCopyButton(account, result.sessionId, account.phone);
-              console.log(`[Bot:${id}] Copy button message sent.`);
-            } catch (error) {
-              console.error(
-                `[Bot:${id}] Copy button failed:`,
-                error.message
+              await sendSessionWithCopyButton(
+                account,
+                result.sessionId,
+                account.phone
               );
+              console.log(`[Bot:${id}] Session + copy button sent.`);
+            } catch (error) {
+              console.error(`[Bot:${id}] Copy button failed:`, error.message);
             }
           }
 
@@ -465,14 +504,12 @@ async function connect(key) {
 
         account.status = 'disconnected';
 
-        // WhatsApp asks for a restart right after a QR scan / pairing
         const delay =
           statusCode === DisconnectReason.restartRequired ? 500 : 5000;
 
         if (config.autoReconnect) {
           setTimeout(() => {
             const current = accounts.get(id);
-
             if (
               current &&
               current.status !== 'connected' &&
@@ -486,10 +523,8 @@ async function connect(key) {
       }
     });
 
-    // pairing code is only requested in "code" mode
     if (!state.creds.registered && account.mode === 'code') {
       account.status = 'generating_code';
-
       await sleep(1500);
 
       console.log(`[Bot:${id}] Requesting pairing code...`);
@@ -548,7 +583,6 @@ app.get('/api/info', (req, res) => {
   });
 });
 
-// "phone" is a phone number (code mode) or a QR id (qr mode)
 app.get('/api/status', (req, res) => {
   const key = normalizePhone(req.query.id || req.query.phone);
 
@@ -585,19 +619,17 @@ app.post('/api/pair', async (req, res) => {
   const clean = normalizePhone(req.body.phone);
 
   if (!clean || clean.length < 7) {
-    return res.status(400).json({
-      success: false,
-      error: 'Valid number required'
-    });
+    return res
+      .status(400)
+      .json({ success: false, error: 'Valid number required' });
   }
 
   const account = getAccount(clean, 'code');
 
   if (account.status === 'connected') {
-    return res.status(400).json({
-      success: false,
-      error: 'Already connected'
-    });
+    return res
+      .status(400)
+      .json({ success: false, error: 'Already connected' });
   }
 
   if (
@@ -621,10 +653,7 @@ app.post('/api/pair', async (req, res) => {
     );
 
     if (!existingCode) {
-      return res.status(408).json({
-        success: false,
-        error: 'Timeout'
-      });
+      return res.status(408).json({ success: false, error: 'Timeout' });
     }
 
     return res.json({
@@ -650,10 +679,9 @@ app.post('/api/pair', async (req, res) => {
   );
 
   if (!code) {
-    return res.status(408).json({
-      success: false,
-      error: 'Timeout generating code'
-    });
+    return res
+      .status(408)
+      .json({ success: false, error: 'Timeout generating code' });
   }
 
   return res.json({
@@ -664,14 +692,11 @@ app.post('/api/pair', async (req, res) => {
   });
 });
 
-// QR: no phone number needed. Returns an id the page polls with.
 app.post('/api/start-qr', async (req, res) => {
-  // drop the previous unused QR session of this visitor, if any
   const previous = normalizePhone(req.body?.id);
 
   if (previous && accounts.get(previous)?.mode === 'qr') {
     const old = accounts.get(previous);
-
     if (old.status !== 'connected' && old.status !== 'session_ready') {
       destroyAccount(previous);
     }
@@ -681,13 +706,10 @@ app.post('/api/start-qr', async (req, res) => {
   const account = getAccount(id, 'qr');
 
   account.status = 'connecting';
-
   connect(id).catch(() => {});
 
-  // an unfinished QR session is removed after 3 minutes
   setTimeout(() => {
     const current = accounts.get(id);
-
     if (
       current &&
       current.status !== 'connected' &&
@@ -697,19 +719,11 @@ app.post('/api/start-qr', async (req, res) => {
     }
   }, 3 * 60 * 1000);
 
-  const qr = await waitFor(
-    () => accounts.get(id)?.qrDataUrl || null,
-    20000,
-    300
-  );
+  const qr = await waitFor(() => accounts.get(id)?.qrDataUrl || null, 20000, 300);
 
   if (!qr) {
     destroyAccount(id);
-
-    return res.status(408).json({
-      success: false,
-      error: 'Timeout waiting QR'
-    });
+    return res.status(408).json({ success: false, error: 'Timeout waiting QR' });
   }
 
   return res.json({
@@ -728,7 +742,6 @@ async function start() {
   console.log('\nSILA MD PAIRING SERVER — Created By Sila Tech\n');
 
   const sessionsDir = path.join(__dirname, 'sessions');
-
   if (!fs.existsSync(sessionsDir)) {
     fs.mkdirSync(sessionsDir, { recursive: true });
   }
