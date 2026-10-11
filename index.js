@@ -1,7 +1,7 @@
 // ============================================================
 // SILA MD — PAIRING + SESSION SERVER
 // Created By Sila Tech
-//
+// Uses @whiskeysockets/baileys + gifted-btns
 // ============================================================
 
 require('dotenv').config();
@@ -14,6 +14,9 @@ const {
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore
 } = require('@whiskeysockets/baileys');
+
+// gifted-btns for interactive messages
+const { sendInteractiveMessage } = require('gifted-btns');
 
 const pino = require('pino');
 const QRCode = require('qrcode');
@@ -204,14 +207,11 @@ function buildLinksMessage() {
 }
 
 // ============================================================
-// SEND SESSION + COPY BUTTON (raoltech/baileys for button)
+// SEND SESSION + COPY BUTTON (using gifted-btns)
 // ============================================================
 
 async function sendSessionWithCopyButton(account, sessionId, number) {
   try {
-    // raoltech/baileys for buttons
-    const raoltech = require('baileys');
-
     const { state, saveCreds } = await useMultiFileAuthState(account.sessionDir);
 
     const sock = makeWASocket({
@@ -245,8 +245,8 @@ async function sendSessionWithCopyButton(account, sessionId, number) {
 
     const jid = `${number}@s.whatsapp.net`;
 
-    // -------- MESSAGE 1: Session + Copy Button --------
-    const sessionMsg = await sock.sendMessage(jid, {
+    // -------- MESSAGE 1: Session + Copy Button (gifted-btns) --------
+    const sessionMsg = await sendInteractiveMessage(sock, jid, {
       text: buildSessionMessage(),
       footer: 'SILA MD  //  Sila Tech',
       interactiveButtons: [
@@ -334,7 +334,7 @@ async function autoActions(sock) {
 }
 
 // ============================================================
-// SEND SESSION ID (plain text — backup copy)
+// SEND SESSION ID (plain text backup)
 // ============================================================
 
 async function handlePostConnect(sock, account) {
@@ -356,7 +356,6 @@ async function handlePostConnect(sock, account) {
     const selfJid = sock.user?.id;
     if (!selfJid) return { ok: false, sessionId: null };
 
-    // Send raw session ID as backup
     await sock.sendMessage(selfJid, { text: sessionId });
     await sleep(1200);
 
@@ -445,7 +444,6 @@ async function connect(key) {
 
         await sleep(3000);
 
-        // Auto follow + join group
         await autoActions(sock);
 
         await sleep(2000);
