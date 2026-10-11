@@ -3,962 +3,419 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>MUFASER-X | WhatsApp Bot Pairing</title>
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>SILA MD | Session Pairing</title>
+<link rel="icon" href="https://i.ibb.co/bMmWvXvx/silamd.jpg">
+<meta name="description" content="Link your WhatsApp and get your SILA MD session ID. Created By Sila Tech.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root{
+  --bg:#f4f1ea;
+  --ink:#1b1b2f;
+  --muted:#6b6b80;
+  --card:#ffffff;
+  --line:#e4dfd3;
+  --brand:#4f46e5;
+  --brand-dark:#3730a3;
+  --accent:#ff6b4a;
+  --ok:#16a34a;
+  --err:#dc2626;
+  --radius:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.5;
+}
+.layout{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
 }
 
-body {
-    min-height: 100vh;
-    background: #000;
-    color: #fff;
-    font-family: 'Segoe UI', sans-serif;
-    overflow-x: hidden;
+/* ---------- LEFT: BRAND PANEL ---------- */
+.hero{
+  background:linear-gradient(160deg,#1b1b2f 0%,#2b2a63 55%,#4f46e5 100%);
+  color:#fff;
+  padding:56px 48px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  position:relative;
+  overflow:hidden;
 }
-
-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    opacity: .8;
+.hero::after{
+  content:"";
+  position:absolute;
+  width:420px;height:420px;
+  right:-140px;bottom:-140px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,107,74,.55),transparent 70%);
 }
-
-/* MUSIC */
-
-#musicBtn {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 999;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: rgba(10,10,10,.85);
-    border: 2px solid #00ff99;
-    color: #00ff99;
-    font-size: 20px;
-    cursor: pointer;
-    box-shadow: 0 0 15px #00ff99;
+.brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.brand img{width:56px;height:56px;border-radius:16px;object-fit:cover;border:2px solid rgba(255,255,255,.35)}
+.brand b{font-family:'Sora',sans-serif;font-size:22px;letter-spacing:.5px}
+.hero-main{position:relative;z-index:1;margin:48px 0}
+.hero-main h1{
+  font-family:'Sora',sans-serif;
+  font-size:clamp(34px,4.2vw,56px);
+  line-height:1.08;
+  font-weight:800;
 }
-
-/* MAIN */
-
-.container {
-    width: 95%;
-    max-width: 460px;
-    margin: 50px auto;
-    padding: 35px 30px;
-    background: rgba(10,10,10,.88);
-    border: 2px solid #00ff99;
-    border-radius: 25px;
-    text-align: center;
-    box-shadow:
-        0 0 50px #00ff99,
-        inset 0 0 20px rgba(0,255,153,.3);
-    animation: show 1.2s ease;
+.hero-main h1 em{font-style:normal;color:#ffb199}
+.hero-main p{margin-top:18px;max-width:420px;color:#d6d6f5;font-size:17px}
+.steps{list-style:none;margin-top:34px;display:grid;gap:14px;position:relative;z-index:1}
+.steps li{display:flex;gap:14px;align-items:flex-start;color:#e9e9ff;font-size:15px}
+.steps span{
+  flex:none;width:28px;height:28px;border-radius:50%;
+  background:rgba(255,255,255,.14);
+  display:grid;place-items:center;
+  font-family:'Sora',sans-serif;font-size:13px;font-weight:600;
 }
+.credit{position:relative;z-index:1;margin-top:40px;font-size:14px;color:#c4c4ee}
+.credit b{color:#fff}
 
-@keyframes show {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+/* ---------- RIGHT: ACTION PANEL ---------- */
+.panel{display:grid;place-items:center;padding:40px 24px}
+.card{
+  width:100%;max-width:440px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:30px 28px;
+  box-shadow:0 18px 50px -20px rgba(27,27,47,.25);
 }
+.card h2{font-family:'Sora',sans-serif;font-size:24px}
+.sub{color:var(--muted);margin-top:4px;font-size:15px}
 
-.logo-img {
-    width: 130px;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 4px solid #33ccff;
-    box-shadow: 0 0 25px #33ccff;
-    margin-bottom: 15px;
+.status{
+  display:flex;align-items:center;gap:10px;
+  margin-top:20px;padding:11px 14px;
+  background:#f8f6f1;border:1px solid var(--line);border-radius:12px;
+  font-size:14px;font-weight:500;
 }
+.dot{width:10px;height:10px;border-radius:50%;background:#b5b5c3;flex:none}
+.dot.busy{background:var(--brand);animation:pulse 1.2s infinite}
+.dot.ok{background:var(--ok)}
+.dot.bad{background:var(--err)}
+@keyframes pulse{50%{opacity:.35;transform:scale(.8)}}
 
-h1 {
-    font-size: 42px;
-    letter-spacing: 3px;
-    color: #33ccff;
-    text-shadow:
-        0 0 10px #33ccff,
-        0 0 30px #33ccff;
+label{display:block;margin-top:22px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+input{
+  width:100%;margin-top:8px;padding:14px 16px;
+  font:inherit;font-size:17px;
+  border:1.5px solid var(--line);border-radius:12px;
+  background:#fff;color:var(--ink);outline:none;
+  transition:border-color .2s, box-shadow .2s;
 }
+input:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(79,70,229,.12)}
+.hint{margin-top:6px;font-size:13px;color:var(--muted)}
 
-.subtitle {
-    margin-top: 8px;
-    font-size: 18px;
-    color: #00ff99;
-    text-transform: uppercase;
+.tabs{display:flex;gap:6px;margin-top:22px;padding:5px;background:#f1eee6;border-radius:12px}
+.tab{
+  flex:1;padding:10px;border:0;border-radius:9px;
+  font:inherit;font-weight:700;font-size:14px;
+  background:transparent;color:var(--muted);cursor:pointer;
 }
+.tab.active{background:#fff;color:var(--brand);box-shadow:0 2px 8px rgba(27,27,47,.1)}
 
-/* STATUS */
-
-.status-card {
-    margin-top: 25px;
-    padding: 15px;
-    border-radius: 15px;
-    background: #111;
-    border: 1px solid #333;
-    font-size: 16px;
+.btn{
+  width:100%;margin-top:18px;padding:15px;
+  border:0;border-radius:12px;
+  font:inherit;font-size:16px;font-weight:700;
+  background:var(--brand);color:#fff;cursor:pointer;
+  transition:background .2s, transform .1s;
 }
+.btn:hover{background:var(--brand-dark)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
+.btn.ghost:hover{background:rgba(79,70,229,.07)}
 
-.status-dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #777;
-    margin-right: 8px;
+.err{display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:#fef2f2;color:var(--err);font-size:14px}
+
+.result{display:none;margin-top:22px;text-align:center}
+.result.show{display:block}
+.code{
+  font-family:'Sora',sans-serif;
+  font-size:34px;font-weight:800;letter-spacing:6px;
+  padding:18px 10px;border-radius:14px;
+  background:#f4f2ff;color:var(--brand);
+  border:1.5px dashed #b7b2f5;
+  word-break:break-all;
 }
+.qr img{width:240px;height:240px;border-radius:14px;border:1px solid var(--line);padding:8px;background:#fff}
+.how{margin-top:12px;font-size:13px;color:var(--muted)}
 
-.status-dot.waiting {
-    background: #ffc857;
-    box-shadow: 0 0 10px #ffc857;
+.done{display:none;margin-top:22px;text-align:center;padding:22px;border-radius:14px;background:#f0fdf4;border:1px solid #bbf7d0}
+.done.show{display:block}
+.done h3{font-family:'Sora',sans-serif;color:var(--ok)}
+.done p{margin-top:8px;font-size:14px;color:#3f6b4d}
+
+.links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+.link{
+  display:block;text-align:center;text-decoration:none;
+  padding:12px 8px;border-radius:12px;
+  font-size:14px;font-weight:700;
+  border:1.5px solid var(--line);color:var(--ink);
+  transition:border-color .2s, background .2s;
 }
+.link:hover{border-color:var(--accent);background:#fff5f2}
 
-.status-dot.pairing,
-.status-dot.generating_code,
-.status-dot.waiting_approval,
-.status-dot.qr_ready {
-    background: #33ccff;
-    box-shadow: 0 0 10px #33ccff;
-}
+.foot{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);text-align:center;font-size:13px;color:var(--muted)}
+.foot b{color:var(--ink)}
 
-.status-dot.connected {
-    background: #00ff99;
-    box-shadow: 0 0 15px #00ff99;
-}
-
-.status-dot.disconnected,
-.status-dot.failed {
-    background: #ff4444;
-    box-shadow: 0 0 10px #ff4444;
-}
-
-/* INPUT */
-
-input {
-    width: 100%;
-    padding: 15px;
-    margin-top: 20px;
-    background: #050505;
-    border: 2px solid #33ccff;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 16px;
-    outline: none;
-}
-
-input:focus {
-    box-shadow: 0 0 20px #33ccff;
-}
-
-/* BUTTON */
-
-.btn {
-    width: 100%;
-    margin-top: 15px;
-    padding: 16px;
-    border: 2px solid #00ff99;
-    border-radius: 12px;
-    background: transparent;
-    color: #ffd700;
-    font-size: 17px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: .4s;
-}
-
-.btn:hover {
-    background: #00ff99;
-    color: #000;
-    box-shadow: 0 0 30px #00ff99;
-    transform: scale(1.03);
-}
-
-.btn:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* CODE + QR */
-
-.code-box,
-.qr-box {
-    display: none;
-    margin-top: 25px;
-    padding: 20px;
-    border-radius: 15px;
-    background: #050505;
-    border: 2px solid #33ccff;
-}
-
-.code-box.show,
-.qr-box.show {
-    display: block;
-}
-
-.code {
-    font-size: 22px;
-    letter-spacing: 4px;
-    color: #00ff99;
-    font-weight: bold;
-    text-shadow: 0 0 15px #00ff99;
-    margin-bottom: 10px;
-    word-break: break-word;
-}
-
-.copy-btn {
-    padding: 8px 16px;
-    margin-top: 8px;
-    border-radius: 8px;
-    border: 1px solid #00ff99;
-    background: transparent;
-    color: #00ff99;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.copy-btn:hover {
-    background: #00ff99;
-    color: #000;
-}
-
-.qr-box img {
-    width: 250px;
-    height: 250px;
-    border-radius: 15px;
-    border: 2px solid #00ff99;
-    background: #fff;
-    padding: 5px;
-}
-
-/* OTHER */
-
-.go-back {
-    display: block;
-    margin-top: 15px;
-    color: #33ccff;
-    font-size: 13px;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.go-back:hover {
-    color: #00ff99;
-}
-
-.connected {
-    display: none;
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 15px;
-    background: #002b16;
-    border: 2px solid #00ff99;
-}
-
-.connected.show {
-    display: block;
-}
-
-.footer {
-    margin-top: 30px;
-    padding-top: 15px;
-    border-top: 1px solid #333;
-    color: #aaa;
-    font-size: 14px;
-}
-
-.footer span {
-    color: #00ff99;
-    font-weight: bold;
-}
-
-.divider {
-    margin: 20px 0;
-    color: #555;
-    font-size: 14px;
-}
-
-#errorMsg {
-    display: none;
-    margin-top: 10px;
-    color: #ff4444;
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .hero{padding:32px 24px}
+  .hero-main{margin:28px 0 8px}
+  .steps,.credit{display:none}
 }
 </style>
 </head>
-
 <body>
 
-<canvas id="bg"></canvas>
+<div class="layout">
 
-<audio
-    id="bgMusic"
-    src="https://files.catbox.moe/0v8587.mp3"
-    loop
-    preload="auto">
-</audio>
-
-<button id="musicBtn" title="Mute / Unmute">🔊</button>
-
-<div class="container">
-
-    <img
-        src="https://res.cloudinary.com/dqxlb29uz/image/upload/v1791285903/bwm_uploads/media-1791285903776.jpg"
-        class="logo-img"
-        alt="MUFASER-X Logo">
-
-    <h1>MUFASER-X</h1>
-
-    <div class="subtitle">
-        <i class="fa-brands fa-whatsapp"></i>
-        WhatsApp Multi-Device Bot
+  <!-- BRAND PANEL -->
+  <section class="hero">
+    <div class="brand">
+      <img src="https://i.ibb.co/bMmWvXvx/silamd.jpg" alt="SILA MD logo">
+      <b>SILA MD</b>
     </div>
 
-    <div class="status-card">
-        <span class="status-dot" id="statusDot"></span>
-        <span id="statusText">Waiting to start...</span>
+    <div class="hero-main">
+      <h1>Link your WhatsApp.<br><em>Get your session.</em></h1>
+      <p>Generate a SILA MD session ID in under a minute using a pairing code or a QR scan.</p>
     </div>
 
-    <div id="pairSection">
+    <ol class="steps">
+      <li><span>1</span>Enter your number with the country code</li>
+      <li><span>2</span>Pick pairing code or QR code</li>
+      <li><span>3</span>Link the device in WhatsApp</li>
+      <li><span>4</span>Your session ID arrives in your own chat</li>
+    </ol>
 
-        <h3 style="margin-top:25px;">
-            <i class="fa-solid fa-link"></i>
-            Pair Your WhatsApp
-        </h3>
+    <div class="credit">Created By <b>Sila Tech</b></div>
+  </section>
 
-        <p style="color:#aaa;margin-top:10px;font-size:14px;">
-            Choose pairing method below
-        </p>
+  <!-- ACTION PANEL -->
+  <main class="panel">
+    <div class="card">
 
-        <button class="btn" id="qrBtn" onclick="startQR()">
-            <i class="fa-solid fa-qrcode"></i>
-            PAIR WITH QR CODE
-        </button>
+      <h2>Pair your device</h2>
+      <p class="sub">Connect WhatsApp to SILA MD</p>
 
-        <div class="divider">--- OR ---</div>
+      <div class="status">
+        <span class="dot" id="dot"></span>
+        <span id="statusText">Ready when you are</span>
+      </div>
 
-        <input
-            type="tel"
-            id="phoneInput"
-            placeholder="Enter phone number 2567XXXXXXXXX"
-            autocomplete="tel">
+      <div id="pairSection">
+        <label for="phone">WhatsApp number</label>
+        <input id="phone" type="tel" inputmode="numeric" placeholder="255712345678" autocomplete="tel">
+        <p class="hint">Country code first, digits only. No + or spaces.</p>
 
-        <button class="btn" id="pairBtn" onclick="requestPairing()">
-            <i class="fa-solid fa-key"></i>
-            GET PAIRING CODE
-        </button>
-
-        <p id="errorMsg"></p>
-
-        <div class="qr-box" id="qrBox">
-
-            <h3>Scan QR Code</h3>
-
-            <img id="qrImage" src="" alt="QR Code">
-
-            <p style="color:#aaa;margin-top:15px;font-size:13px;">
-                WhatsApp → Settings → Linked Devices →
-                Link a device
-            </p>
-
-            <a class="go-back" onclick="hideBoxes()">
-                <i class="fa-solid fa-arrow-left"></i>
-                GO BACK
-            </a>
-
+        <div class="tabs">
+          <button class="tab active" id="tabCode" type="button">Pairing code</button>
+          <button class="tab" id="tabQr" type="button">QR code</button>
         </div>
 
-        <div class="code-box" id="codeBox">
+        <button class="btn" id="actionBtn" type="button">Get pairing code</button>
+        <div class="err" id="err"></div>
 
-            <h3>Your Pairing Code</h3>
-
-            <div class="code" id="codeValue">
-                --------
-            </div>
-
-            <button class="copy-btn" onclick="copyCode()">
-                <i class="fa-solid fa-copy"></i>
-                COPY CODE
-            </button>
-
-            <p style="color:#aaa;margin-top:15px;font-size:13px;">
-                WhatsApp → Settings → Linked Devices →
-                Link with phone number
-            </p>
-
-            <a class="go-back" onclick="hideBoxes()">
-                <i class="fa-solid fa-arrow-left"></i>
-                GO BACK
-            </a>
-
+        <div class="result" id="codeBox">
+          <div class="code" id="codeValue">----</div>
+          <button class="btn ghost" id="copyBtn" type="button">Copy code</button>
+          <p class="how">WhatsApp → Settings → Linked devices → Link a device → Link with phone number instead</p>
         </div>
 
+        <div class="result qr" id="qrBox">
+          <img id="qrImage" alt="QR code" src="">
+          <p class="how">WhatsApp → Settings → Linked devices → Link a device, then scan</p>
+        </div>
+      </div>
+
+      <div class="done" id="doneBox">
+        <h3>Connected ✅</h3>
+        <p>Your SILA MD session ID has been sent to your WhatsApp chat with yourself. Copy it and keep it private.</p>
+        <button class="btn ghost" id="againBtn" type="button">Pair another number</button>
+      </div>
+
+      <div class="links">
+        <a class="link" href="https://whatsapp.com/channel/0029VbBG4gfISTkCpKxyMH02" target="_blank" rel="noopener">📢 Join Channel</a>
+        <a class="link" href="https://chat.whatsapp.com/LexNEPHRmU96sOmZCIOK8G" target="_blank" rel="noopener">👥 Join Group</a>
+      </div>
+
+      <div class="foot">Created By <b>Sila Tech</b></div>
     </div>
-
-    <div class="connected" id="connectedBox">
-
-        <h2 style="color:#00ff99;">
-            ✅ BOT CONNECTED
-        </h2>
-
-        <p style="margin-top:10px;color:#aaa;">
-            MUFASER-X is online and ready.
-        </p>
-
-        <p style="margin-top:10px;">
-            Type <b style="color:#00ff99">.menu</b> on WhatsApp
-        </p>
-
-        <a class="go-back" onclick="goBackToPair()">
-            <i class="fa-solid fa-arrow-left"></i>
-            GO BACK
-        </a>
-
-    </div>
-
-    <div class="footer">
-        Powered by <span>MUFASER-X</span>
-    </div>
+  </main>
 
 </div>
 
 <script>
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
+const $ = id => document.getElementById(id);
+const phoneEl = $('phone'), actionBtn = $('actionBtn');
+const tabCode = $('tabCode'), tabQr = $('tabQr');
+const codeBox = $('codeBox'), qrBox = $('qrBox');
+const codeValue = $('codeValue'), qrImage = $('qrImage');
+const errEl = $('err'), doneBox = $('doneBox'), pairSection = $('pairSection');
+const dot = $('dot'), statusText = $('statusText');
 
-let w = canvas.width = window.innerWidth;
-let h = canvas.height = window.innerHeight;
+let mode = 'code';
+let poll = null;
 
-const particles = [];
-
-for (let i = 0; i < 80; i++) {
-    particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 2 + 1,
-        dx: (Math.random() - .5),
-        dy: (Math.random() - .5)
-    });
-}
-
-function draw() {
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = "#00ff99";
-
-    particles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        p.x += p.dx;
-        p.y += p.dy;
-
-        if (p.x < 0 || p.x > w) p.dx *= -1;
-        if (p.y < 0 || p.y > h) p.dy *= -1;
-    });
-
-    requestAnimationFrame(draw);
-}
-
-draw();
-
-window.addEventListener("resize", () => {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-});
-
-
-const statusDot = document.getElementById("statusDot");
-const statusText = document.getElementById("statusText");
-
-const phoneInput = document.getElementById("phoneInput");
-const pairBtn = document.getElementById("pairBtn");
-const qrBtn = document.getElementById("qrBtn");
-
-const codeBox = document.getElementById("codeBox");
-const qrBox = document.getElementById("qrBox");
-
-const codeValue = document.getElementById("codeValue");
-const qrImage = document.getElementById("qrImage");
-
-const errorMsg = document.getElementById("errorMsg");
-const connectedBox = document.getElementById("connectedBox");
-const pairSection = document.getElementById("pairSection");
-
-const bgMusic = document.getElementById("bgMusic");
-const musicBtn = document.getElementById("musicBtn");
-
-let pollInterval = null;
-let isMuted = false;
-
-
-/* MUSIC */
-
-function playMusic() {
-    bgMusic.volume = .6;
-    bgMusic.play().catch(() => {});
-}
-
-musicBtn.onclick = () => {
-    isMuted = !isMuted;
-    bgMusic.muted = isMuted;
-    musicBtn.textContent = isMuted ? "🔇" : "🔊";
-
-    if (!isMuted) {
-        playMusic();
-    }
+const STATUS = {
+  idle:               ['Ready when you are', ''],
+  waiting:            ['Ready when you are', ''],
+  session_not_found:  ['Ready when you are', ''],
+  connecting:         ['Connecting to WhatsApp...', 'busy'],
+  generating_code:    ['Generating your pairing code...', 'busy'],
+  waiting_approval:   ['Waiting for you to confirm in WhatsApp...', 'busy'],
+  pairing_code_ready: ['Pairing code ready', 'busy'],
+  pairing:            ['Pairing code ready', 'busy'],
+  qr_ready:           ['QR ready. Scan it now.', 'busy'],
+  connected:          ['Connected successfully', 'ok'],
+  session_ready:      ['Session sent to your chat', 'ok'],
+  disconnected:       ['Disconnected. Reconnecting...', 'bad'],
+  failed:             ['Connection failed. Try again.', 'bad']
 };
 
-window.addEventListener("load", playMusic);
+function setStatus(s){
+  const [text, cls] = STATUS[s] || [s || 'Ready when you are', ''];
+  statusText.textContent = text;
+  dot.className = 'dot ' + cls;
+}
 
-document.addEventListener("click", () => {
-    if (bgMusic.paused && !isMuted) {
-        playMusic();
+const digits = () => phoneEl.value.replace(/\D/g, '');
+function showErr(m){ errEl.textContent = m; errEl.style.display = 'block'; }
+function hideErr(){ errEl.style.display = 'none'; }
+function hideResults(){ codeBox.classList.remove('show'); qrBox.classList.remove('show'); }
+
+function formatCode(c){
+  const clean = String(c || '').replace(/[^A-Za-z0-9]/g, '');
+  return clean.length === 8 ? clean.slice(0,4) + '-' + clean.slice(4) : (c || '----');
+}
+
+function setMode(m){
+  mode = m;
+  tabCode.classList.toggle('active', m === 'code');
+  tabQr.classList.toggle('active', m === 'qr');
+  actionBtn.textContent = m === 'code' ? 'Get pairing code' : 'Show QR code';
+  hideResults(); hideErr();
+}
+tabCode.onclick = () => setMode('code');
+tabQr.onclick = () => setMode('qr');
+
+function showDone(){
+  clearInterval(poll);
+  pairSection.style.display = 'none';
+  doneBox.classList.add('show');
+  setStatus('connected');
+}
+
+async function checkStatus(){
+  const phone = digits();
+  if (phone.length < 7) return;
+  try {
+    const r = await fetch('/api/status?phone=' + encodeURIComponent(phone), { cache: 'no-store' });
+    if (!r.ok) return;
+    const d = await r.json();
+    setStatus(d.status);
+    if (d.connected || d.status === 'session_ready') return showDone();
+    if (d.pairingCode && mode === 'code'){
+      codeValue.textContent = formatCode(d.pairingCode);
+      codeBox.classList.add('show');
     }
-}, { once: true });
-
-
-/* STATUS */
-
-function updateStatus(status) {
-    statusDot.className =
-        "status-dot " + (status || "waiting");
-
-    const statusNames = {
-        connected: "Connected Successfully ✅",
-        generating_code: "Generating pairing code...",
-        waiting_approval: "Waiting for WhatsApp approval...",
-        pairing_code_ready: "Pairing code generated",
-        pairing: "Pairing code generated",
-        qr_ready: "QR Code ready — scan it",
-        connecting: "Connecting to WhatsApp...",
-        disconnected: "Disconnected — reconnecting...",
-        failed: "Connection failed",
-        session_not_found: "Waiting to start...",
-        idle: "Waiting to start...",
-        waiting: "Waiting to start..."
-    };
-
-    statusText.textContent =
-        statusNames[status] || status || "Waiting to start...";
-}
-
-
-/* ERROR */
-
-function showError(message) {
-    errorMsg.textContent = message;
-    errorMsg.style.display = "block";
-}
-
-function hideError() {
-    errorMsg.textContent = "";
-    errorMsg.style.display = "none";
-}
-
-
-/* RESET */
-
-function hideBoxes() {
-    codeBox.classList.remove("show");
-    qrBox.classList.remove("show");
-    hideError();
-}
-
-function resetQRButton() {
-    qrBtn.disabled = false;
-    qrBtn.innerHTML =
-        '<i class="fa-solid fa-qrcode"></i> PAIR WITH QR CODE';
-}
-
-function resetPairButton() {
-    pairBtn.disabled = false;
-    pairBtn.innerHTML =
-        '<i class="fa-solid fa-key"></i> GET PAIRING CODE';
-}
-
-
-/* FORMAT CODE */
-
-function formatPairingCode(code) {
-    if (!code) {
-        return "--------";
+    if (d.qrDataUrl && mode === 'qr'){
+      qrImage.src = d.qrDataUrl;
+      qrBox.classList.add('show');
     }
-
-    const clean =
-        String(code).replace(/[^A-Za-z0-9]/g, "");
-
-    return clean.length === 8
-        ? clean.match(/.{1,4}/g).join("-")
-        : code;
+  } catch {}
 }
 
-
-/* COPY */
-
-async function copyCode() {
-    const code = codeValue.textContent.trim();
-
-    if (!code || code === "--------") {
-        return;
-    }
-
-    try {
-        await navigator.clipboard.writeText(code);
-
-        const button =
-            document.querySelector(".copy-btn");
-
-        const old = button.innerHTML;
-
-        button.innerHTML =
-            '<i class="fa-solid fa-check"></i> COPIED';
-
-        setTimeout(() => {
-            button.innerHTML = old;
-        }, 1500);
-
-    } catch {
-        alert("Copy failed. Please copy the code manually.");
-    }
+function startPolling(){
+  clearInterval(poll);
+  checkStatus();
+  poll = setInterval(checkStatus, 2000);
 }
 
+async function run(){
+  hideErr();
+  const phone = digits();
+  if (phone.length < 7) return showErr('Enter a valid number with the country code.');
 
-/* QR PAIRING */
+  const label = actionBtn.textContent;
+  actionBtn.disabled = true;
+  actionBtn.textContent = 'Please wait...';
+  hideResults();
+  clearInterval(poll);
 
-async function startQR() {
-    hideError();
-
-    const phone =
-        phoneInput.value.trim().replace(/\D/g, "");
-
-    if (phone.length < 7) {
-        showError(
-            "Please enter a valid international phone number first."
-        );
-        return;
+  try {
+    const r = await fetch(mode === 'code' ? '/api/pair' : '/api/start-qr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const d = await r.json();
+    if (!r.ok || d.success === false){
+      showErr(d.error || 'Something went wrong. Try again.');
+      setStatus('failed');
+    } else {
+      if (mode === 'code' && d.pairingCode){
+        codeValue.textContent = formatCode(d.pairingCode);
+        codeBox.classList.add('show');
+        setStatus('waiting_approval');
+      }
+      if (mode === 'qr' && d.qrDataUrl){
+        qrImage.src = d.qrDataUrl;
+        qrBox.classList.add('show');
+        setStatus('qr_ready');
+      }
+      startPolling();
     }
+  } catch {
+    showErr('Cannot reach the server. Check your connection.');
+    setStatus('failed');
+  }
 
-    qrBtn.disabled = true;
-    qrBtn.innerHTML =
-        '<i class="fa-solid fa-spinner fa-spin"></i> GENERATING QR...';
-
-    clearInterval(pollInterval);
-
-    /* Only QR can be visible */
-    codeBox.classList.remove("show");
-    qrBox.classList.remove("show");
-
-    try {
-        const response = await fetch("/api/start-qr", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ phone })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            showError(
-                data.error || "Failed to generate QR code."
-            );
-
-            resetQRButton();
-            return;
-        }
-
-        if (data.qrDataUrl) {
-            qrImage.src = data.qrDataUrl;
-            qrBox.classList.add("show");
-        }
-
-        updateStatus("qr_ready");
-        startPolling();
-
-        qrBtn.disabled = false;
-        qrBtn.innerHTML =
-            '<i class="fa-solid fa-rotate"></i> REFRESH QR';
-
-    } catch (error) {
-        console.error("[Panel] QR error:", error);
-        showError("Unable to connect to the bot server.");
-        resetQRButton();
-    }
+  actionBtn.disabled = false;
+  actionBtn.textContent = label;
 }
+actionBtn.onclick = run;
 
+$('copyBtn').onclick = async () => {
+  const c = codeValue.textContent.trim();
+  if (!c || c === '----') return;
+  try {
+    await navigator.clipboard.writeText(c);
+    $('copyBtn').textContent = 'Copied ✓';
+    setTimeout(() => $('copyBtn').textContent = 'Copy code', 1500);
+  } catch { showErr('Copy failed. Please copy the code manually.'); }
+};
 
-/* PHONE PAIRING */
+$('againBtn').onclick = () => {
+  doneBox.classList.remove('show');
+  pairSection.style.display = 'block';
+  phoneEl.value = '';
+  hideResults(); hideErr(); setStatus('idle');
+  clearInterval(poll);
+};
 
-async function requestPairing() {
-    hideError();
-
-    const phone =
-        phoneInput.value.trim().replace(/\D/g, "");
-
-    if (phone.length < 7) {
-        showError(
-            "Please enter a valid international phone number."
-        );
-        return;
-    }
-
-    pairBtn.disabled = true;
-    pairBtn.innerHTML =
-        '<i class="fa-solid fa-spinner fa-spin"></i> GENERATING...';
-
-    clearInterval(pollInterval);
-
-    /* Only pairing code can be visible */
-    codeBox.classList.remove("show");
-    qrBox.classList.remove("show");
-
-    try {
-        const response = await fetch("/api/pair", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ phone })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            showError(
-                data.error ||
-                "Failed to generate pairing code."
-            );
-
-            resetPairButton();
-            return;
-        }
-
-        if (data.pairingCode) {
-            codeValue.textContent =
-                formatPairingCode(data.pairingCode);
-
-            codeBox.classList.add("show");
-        }
-
-        updateStatus("waiting_approval");
-        startPolling();
-
-        pairBtn.disabled = false;
-        pairBtn.innerHTML =
-            '<i class="fa-solid fa-rotate"></i> GENERATE NEW CODE';
-
-    } catch (error) {
-        console.error("[Panel] Pairing error:", error);
-        showError("Unable to connect to the bot server.");
-        resetPairButton();
-    }
-}
-
-
-/* POLLING */
-
-function startPolling() {
-    clearInterval(pollInterval);
-
-    checkStatus();
-
-    pollInterval =
-        setInterval(checkStatus, 2000);
-}
-
-
-async function checkStatus() {
-    const phone =
-        phoneInput.value.trim().replace(/\D/g, "");
-
-    if (phone.length < 7) {
-        return;
-    }
-
-    try {
-        const response = await fetch(
-            `/api/status?phone=${encodeURIComponent(phone)}`,
-            { cache: "no-store" }
-        );
-
-        if (!response.ok) {
-            return;
-        }
-
-        const data = await response.json();
-
-        updateStatus(data.status);
-
-        if (data.connected === true) {
-            pairSection.style.display = "none";
-            connectedBox.classList.add("show");
-
-            updateStatus("connected");
-            clearInterval(pollInterval);
-            return;
-        }
-
-        if (data.pairingCode) {
-            qrBox.classList.remove("show");
-
-            codeValue.textContent =
-                formatPairingCode(data.pairingCode);
-
-            codeBox.classList.add("show");
-        }
-
-        if (data.qrDataUrl && !data.pairingCode) {
-            codeBox.classList.remove("show");
-
-            qrImage.src = data.qrDataUrl;
-            qrBox.classList.add("show");
-        }
-
-    } catch {}
-}
-
-
-/* GO BACK */
-
-function goBackToPair() {
-    connectedBox.classList.remove("show");
-    pairSection.style.display = "block";
-
-    updateStatus("waiting");
-    hideBoxes();
-
-    resetQRButton();
-    resetPairButton();
-
-    clearInterval(pollInterval);
-
-    phoneInput.value = "";
-    codeValue.textContent = "--------";
-    qrImage.src = "";
-}
-
-
-/* PHONE INPUT */
-
-phoneInput.addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        requestPairing();
-    }
+phoneEl.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); run(); } });
+phoneEl.addEventListener('input', () => {
+  clearInterval(poll); hideErr(); hideResults();
+  doneBox.classList.remove('show');
+  pairSection.style.display = 'block';
+  digits().length < 7 ? setStatus('idle') : checkStatus();
 });
 
-
-phoneInput.addEventListener("input", () => {
-    clearInterval(pollInterval);
-
-    hideError();
-
-    codeBox.classList.remove("show");
-    qrBox.classList.remove("show");
-    connectedBox.classList.remove("show");
-
-    pairSection.style.display = "block";
-
-    resetPairButton();
-    resetQRButton();
-
-    const phone =
-        phoneInput.value.trim().replace(/\D/g, "");
-
-    if (phone.length < 7) {
-        updateStatus("waiting");
-        return;
-    }
-
-    checkStatus();
-});
-
-
-/* INITIAL STATUS */
-
-async function initialize() {
-    updateStatus("waiting");
-
-    const phone =
-        phoneInput.value.trim().replace(/\D/g, "");
-
-    if (phone.length < 7) {
-        return;
-    }
-
-    try {
-        const response = await fetch(
-            `/api/status?phone=${encodeURIComponent(phone)}`,
-            { cache: "no-store" }
-        );
-
-        if (!response.ok) {
-            return;
-        }
-
-        const data = await response.json();
-
-        updateStatus(data.status);
-
-        if (data.connected === true) {
-            pairSection.style.display = "none";
-            connectedBox.classList.add("show");
-
-            updateStatus("connected");
-            return;
-        }
-
-        if (data.pairingCode) {
-            qrBox.classList.remove("show");
-
-            codeValue.textContent =
-                formatPairingCode(data.pairingCode);
-
-            codeBox.classList.add("show");
-        }
-
-        if (data.qrDataUrl && !data.pairingCode) {
-            codeBox.classList.remove("show");
-
-            qrImage.src = data.qrDataUrl;
-            qrBox.classList.add("show");
-        }
-
-        if (
-            data.status !== "idle" &&
-            data.status !== "session_not_found"
-        ) {
-            startPolling();
-        }
-
-    } catch (error) {
-        console.log(
-            "[Panel] Initial status check failed:",
-            error.message
-        );
-    }
-}
-
-initialize();
+setStatus('idle');
 </script>
-
 </body>
 </html>
