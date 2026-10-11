@@ -173,7 +173,7 @@ function waitFor(condition, timeoutMs = 30000, intervalMs = 250) {
 }
 
 // ============================================================
-// MESSAGE BUILDERS
+// MESSAGE BUILDER
 // ============================================================
 
 function buildSessionMessage() {
@@ -186,65 +186,28 @@ function buildSessionMessage() {
     '▸ Tap the button below to copy.',
     '▸ Keep this ID private.',
     '',
-    '  ::  Created By Sila Tech  ::'
-  ].join('\n');
-}
-
-function buildLinksMessage() {
-  return [
-    '◈ ━━━━━━━━━━━━━━━━━━ ◈',
-    '   S I L A   M D',
-    '   links',
-    '◈ ━━━━━━━━━━━━━━━━━━ ◈',
-    '',
+    '═══════════════════',
     `» channel :: ${config.channelLink}`,
     `» group   :: ${config.groupLink}`,
+    '═══════════════════',
     '',
     '  ::  Created By Sila Tech  ::'
   ].join('\n');
 }
 
 // ============================================================
-// SEND SESSION + COPY BUTTON (using gifted-btns)
+// SEND SESSION + COPY BUTTON (single message)
 // ============================================================
 
-async function sendSessionWithCopyButton(account, sessionId, number) {
+async function sendSessionWithCopyButton(sock, sessionId, jid) {
   try {
-    const { state, saveCreds } = await useMultiFileAuthState(account.sessionDir);
+    console.log(`[CopyButton] Sending session with copy button to ${jid}...`);
 
-    const sock = makeWASocket({
-      auth: {
-        creds: state.creds,
-        keys: makeCacheableSignalKeyStore(state.keys, logger)
-      },
-      browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
-      printQRInTerminal: false,
-      logger
-    });
-
-    sock.ev.on('creds.update', saveCreds);
-
-    await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('timeout')), 30000);
-
-      sock.ev.on('connection.update', update => {
-        if (update.connection === 'open') {
-          clearTimeout(timer);
-          resolve();
-        }
-        if (update.connection === 'close') {
-          clearTimeout(timer);
-          reject(new Error('closed'));
-        }
-      });
-    });
-
+    // Wait a bit for socket to stabilize
     await sleep(2000);
 
-    const jid = `${number}@s.whatsapp.net`;
-
-    // -------- MESSAGE 1: Session + Copy Button via gifted-btns --------
-    const sessionMsg = await sendInteractiveMessage(sock, jid, {
+    // Send single message with session + copy button + links
+    await sendInteractiveMessage(sock, jid, {
       text: buildSessionMessage(),
       footer: 'SILA MD  //  Sila Tech',
       interactiveButtons: [
@@ -258,25 +221,12 @@ async function sendSessionWithCopyButton(account, sessionId, number) {
       ]
     });
 
-    await sleep(1500);
-
-    // -------- MESSAGE 2: Reply to session message with links --------
-    await sock.sendMessage(
-      jid,
-      {
-        text: buildLinksMessage()
-      },
-      { quoted: sessionMsg }
-    );
-
-    await sleep(2500);
-
-    try {
-      sock.end(undefined);
-    } catch {}
+    console.log(`[CopyButton] Session + copy button sent successfully.`);
+    return true;
 
   } catch (error) {
     console.error('[CopyButton] Failed:', error.message);
+    return false;
   }
 }
 
@@ -332,7 +282,7 @@ async function autoActions(sock) {
 }
 
 // ============================================================
-// SEND SESSION ID (plain text backup)
+// HANDLE POST-CONNECT (send session + button, then close)
 // ============================================================
 
 async function handlePostConnect(sock, account) {
@@ -348,25 +298,25 @@ async function handlePostConnect(sock, account) {
     const sessionId = createSessionId(account);
 
     console.log(
-      `\n[Session:${account.phone}] SESSION ID GENERATED\n${sessionId}\n`
+      `\n[Session:${account.phone}] SESSION ID GENERATED\n${sessionId.substring(0, 60)}...\n`
     );
 
     const selfJid = sock.user?.id;
     if (!selfJid) return { ok: false, sessionId: null };
 
-    await sock.sendMessage(selfJid, { text: sessionId });
-    await sleep(1200);
+    // Send session + copy button on SAME socket
+    const sent = await sendSessionWithCopyButton(sock, sessionId, selfJid);
 
-    fs.mkdirSync(account.sessionDir, { recursive: true });
-    fs.writeFileSync(
-      account.sessionSentFlag,
-      new Date().toISOString(),
-      'utf8'
-    );
+    if (sent) {
+      fs.mkdirSync(account.sessionDir, { recursive: true });
+      fs.writeFileSync(
+        account.sessionSentFlag,
+        new Date().toISOString(),
+        'utf8'
+      );
+    }
 
-    console.log(`[Session:${account.phone}] Session ID sent successfully.`);
-
-    return { ok: true, sessionId };
+    return { ok: sent, sessionId };
   } catch (error) {
     console.error('[Session] Failed:', error.message);
     return { ok: false, sessionId: null };
@@ -442,37 +392,27 @@ async function connect(key) {
 
         await sleep(3000);
 
+        // Auto follow + join
         await autoActions(sock);
 
         await sleep(2000);
 
+        // Send session + copy button
         const result = await handlePostConnect(sock, account);
 
         if (result.ok) {
+          account.status = 'session_ready';
+          console.log(`[Bot:${id}] Session + copy button sent. Closing socket.`);
+
+          await sleep(3000);
+
           account.stopAfterSession = true;
-          console.log(`[Bot:${id}] Session captured. Closing pairing socket.`);
 
           try {
             sock.end(undefined);
           } catch {}
 
           account.sock = null;
-
-          if (result.sessionId) {
-            try {
-              await sleep(1500);
-              await sendSessionWithCopyButton(
-                account,
-                result.sessionId,
-                account.phone
-              );
-              console.log(`[Bot:${id}] Session + copy button sent.`);
-            } catch (error) {
-              console.error(`[Bot:${id}] Copy button failed:`, error.message);
-            }
-          }
-
-          account.status = 'session_ready';
         }
       }
 
