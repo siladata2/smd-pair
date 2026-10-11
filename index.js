@@ -2,9 +2,7 @@
 // SILA MD — PAIRING + SESSION SERVER
 // Created By Sila Tech
 //
-// Two Baileys builds are used:
-//   @whiskeysockets/baileys  -> pairing (code / QR) + session capture
-//   @itsliaaa/baileys        -> ONLY for the copy-session button
+// 
 // ============================================================
 
 require('dotenv').config();
