@@ -6,7 +6,6 @@
 
 require('dotenv').config();
 
-// @whiskeysockets/baileys — main socket
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -15,7 +14,6 @@ const {
   makeCacheableSignalKeyStore
 } = require('@whiskeysockets/baileys');
 
-// gifted-btns for interactive messages
 const { sendInteractiveMessage } = require('gifted-btns');
 
 const pino = require('pino');
@@ -241,11 +239,11 @@ async function sendSessionWithCopyButton(account, sessionId, number) {
       });
     });
 
-    await sleep(1500);
+    await sleep(2000);
 
     const jid = `${number}@s.whatsapp.net`;
 
-    // -------- MESSAGE 1: Session + Copy Button (gifted-btns) --------
+    // -------- MESSAGE 1: Session + Copy Button via gifted-btns --------
     const sessionMsg = await sendInteractiveMessage(sock, jid, {
       text: buildSessionMessage(),
       footer: 'SILA MD  //  Sila Tech',
