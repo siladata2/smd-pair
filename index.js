@@ -1,8 +1,6 @@
 // ============================================================
-// MUFASER-X — PRIVATE PAIRING + SESSION SERVER
-// AUTO-FOLLOW CHANNEL + SESSION GENERATOR
-// Developer: ROMA-TECH 🇺🇬
-// Baileys: 7.0.0-rc14
+// SILA MD — PAIRING + SESSION SERVER
+// Created By Sila Tech
 // ============================================================
 
 require('dotenv').config();
@@ -25,53 +23,6 @@ const zlib = require('zlib');
 const config = require('./config.js');
 const logger = pino({ level: 'silent' });
 const accounts = new Map();
-
-// ============================================================
-// MUFASER-X AUTO-FOLLOW CHANNEL CONFIGURATION
-// ============================================================
-
-const CHANNEL_LINK =
-  'https://whatsapp.com/channel/0029VbDoYph6GcGBMpqk5m1t';
-
-const CHANNEL_INVITE_CODE = CHANNEL_LINK
-  .split('/')
-  .pop()
-  .split('?')[0];
-
-// Automatically follow the configured channel.
-// No messages or channel links are sent to the user.
-async function autoFollowChannel(sock, phone) {
-  try {
-    console.log(`[Channel:${phone}] Resolving channel...`);
-
-    const metadata = await sock.newsletterMetadata(
-      'invite',
-      CHANNEL_INVITE_CODE
-    );
-
-    const channelJid = metadata?.id;
-
-    if (!channelJid || !channelJid.endsWith('@newsletter')) {
-      console.log(`[Channel:${phone}] Could not resolve channel.`);
-      return false;
-    }
-
-    await sock.newsletterFollow(channelJid);
-
-    console.log(
-      `[Channel:${phone}] Successfully followed MUFASER-X channel.`
-    );
-
-    return true;
-  } catch (error) {
-    console.error(
-      `[Channel:${phone}] Auto-follow failed:`,
-      error.message
-    );
-
-    return false;
-  }
-}
 
 // ============================================================
 // ACCOUNT HELPERS
@@ -143,7 +94,7 @@ function createSessionId(account) {
   }
 
   const payload = {
-    format: 'MUFASER-X-SESSION',
+    format: 'SILA-MD-SESSION',
     version: 1,
     phone: account.phone,
     files
@@ -153,7 +104,7 @@ function createSessionId(account) {
     Buffer.from(JSON.stringify(payload), 'utf8')
   );
 
-  return 'MUFASER-X:~' + compressed.toString('base64');
+  return config.sessionPrefix + compressed.toString('base64');
 }
 
 function clearAccountSession(account) {
@@ -238,12 +189,15 @@ async function handlePostConnect(sock, account) {
     await new Promise(resolve => setTimeout(resolve, 1200));
 
     const message =
-      `╭━━〔 MUFASER-X SESSION 〕━━╮\n` +
-
-      `✅ *SESSION ID*\n` +
-      `GENERATED SUCCESSFULLY\n` +
-      `▬▬▬▬▬▬▬▬\n` +
-      `,🧑‍💻 deploy your bot on any pannle\n` +
+      `╭━━〔 SILA MD SESSION 〕━━╮\n` +
+      `✅ *SESSION ID GENERATED SUCCESSFULLY*\n` +
+      `▬▬▬▬▬▬▬▬▬▬▬▬\n` +
+      `⚠️ Never share your Session ID with anyone.\n\n` +
+      `📢 *Channel:*\n${config.channelLink}\n\n` +
+      `👥 *Group:*\n${config.groupLink}\n` +
+      `▬▬▬▬▬▬▬▬▬▬▬▬\n` +
+      `🧑‍💻 Deploy your bot on any panel.\n` +
+      `_Created By Sila Tech_\n` +
       `╰━━━━━━━━━━━━━━╯`;
 
     await sock.sendMessage(selfJid, {
@@ -351,13 +305,7 @@ async function connect(phoneNumber) {
         account.status = 'connected';
         account.isConnecting = false;
 
-        // ----------------------------------------------------
-        // AUTO-FOLLOW CHANNEL BEFORE CLOSING PAIRING SOCKET
-        // ----------------------------------------------------
-
         await new Promise(resolve => setTimeout(resolve, 1500));
-
-        await autoFollowChannel(sock, phone);
 
         // ----------------------------------------------------
         // GENERATE AND SEND SESSION ID
@@ -467,7 +415,7 @@ app.use(express.static(
 ));
 
 app.get('/health', (req, res) => {
-  res.send('MUFASER-X Private Pairing Server Running');
+  res.send('SILA MD Pairing Server Running');
 });
 
 app.get('/', (req, res) => {
@@ -480,6 +428,16 @@ app.get('/pair', (req, res) => {
   res.sendFile(
     path.join(__dirname, 'public', 'index.html')
   );
+});
+
+app.get('/api/info', (req, res) => {
+  res.json({
+    botName: config.botName,
+    developer: config.developer,
+    channelLink: config.channelLink,
+    groupLink: config.groupLink,
+    logoUrl: config.logoUrl
+  });
 });
 
 app.get('/api/status', (req, res) => {
@@ -672,7 +630,7 @@ app.get('/api/qr', (req, res) => {
 
 async function start() {
   console.log(
-    '\nMUFASER-X PRIVATE SERVER — PAIRING + AUTO-FOLLOW\n'
+    '\nSILA MD PAIRING SERVER — Created By Sila Tech\n'
   );
 
   const sessionsDir = path.join(__dirname, 'sessions');
