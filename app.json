@@ -1,21 +1,16 @@
 {
-  "name": "mini-heroku",
-  "description": "Simple Heroku bot deployment panel",
-  "repository": "",
-  "keywords": [
-    "heroku",
-    "bot",
-    "deployment",
-    "nodejs"
-  ],
-    "PORT": {
-      "description": "Server port",
-      "value": "3000"
-    }
-  },
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    }
-  ]
+    "name": "SILA-MD",
+    "description": "Pair Session Generator",
+    "logo": "https://files.catbox.moe/36vahk.png",
+    "repository": "https://github.com/Sila-Md",
+    "keywords": ["SILA-MD", "SILA-TECH", "MBWA-MD"],
+    "success_url": "/", 
+    "buildpacks": [{ "url": "https://github.com/heroku/heroku-buildpack-nodejs#latest" } ],
+    "env": {      
+      "PORT": {
+        "description": "Port for web app.4000,5000,3000... any!",
+        "value": "5000",
+        "required": false 
+      }
+    }   
 }
