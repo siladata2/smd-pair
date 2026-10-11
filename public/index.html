@@ -3,412 +3,1535 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SILA MD</title>
+<meta name="theme-color" content="#030513">
+<title>SILA MD | WhatsApp Pair</title>
+
 <link rel="icon" href="https://i.ibb.co/bMmWvXvx/silamd.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --blue:#0a84ff;
-  --gray:#8e9099;
-  --text:#c9ccd3;
-  --card-line:#0c2038;
-  --btn-bg:#0d0d0d;
-  --btn-line:#242424;
+:root {
+  --cyan: #00e5ff;
+  --blue: #087cff;
+  --purple: #7c2cff;
+  --pink: #ff168f;
+  --orange: #ff9d00;
+  --yellow: #ffd21f;
+  --green: #42ffad;
+  --red: #ff426f;
+  --gray: #9ba6c8;
+  --text: #e7edff;
+  --card-line: rgba(0,229,255,.28);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{min-height:100%}
-body{
-  background:#000;
-  color:var(--text);
-  font-family:'JetBrains Mono',ui-monospace,monospace;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+
+  background: #030513;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+
   background-image:
-    linear-gradient(rgba(10,132,255,.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10,132,255,.07) 1px, transparent 1px);
-  background-size:118px 118px;
-}
-.wrap{
-  width:100%;
-  max-width:460px;
-  padding:56px 18px 40px;
-  text-align:center;
-}
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(42,30,116,.36),
+      transparent 55%
+    ),
+    linear-gradient(
+      rgba(0,229,255,.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0,229,255,.045) 1px,
+      transparent 1px
+    );
 
-/* header */
-.logo{
-  width:94px;height:94px;
-  border-radius:22px;
-  object-fit:cover;
-  border:1px solid #1b1b1b;
-  box-shadow:0 0 28px rgba(0,255,120,.28);
-}
-h1{
-  margin-top:22px;
-  font-family:'Inter',sans-serif;
-  font-weight:700;
-  font-size:44px;
-  letter-spacing:-.5px;
-  color:var(--gray);
-}
-h1 span{color:var(--blue)}
-.subtitle{
-  margin-top:12px;
-  font-family:'Inter',sans-serif;
-  font-size:21px;
-  color:var(--gray);
+  background-size: auto, 64px 64px, 64px 64px;
+
+  animation: backgroundMove 18s ease-in-out infinite alternate;
 }
 
-/* card */
-.card{
-  margin-top:44px;
-  padding:22px 20px;
-  background:rgba(0,0,0,.72);
-  border:1px solid var(--card-line);
-  border-radius:24px;
+@keyframes backgroundMove {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 0 0, 32px 32px, 32px 32px;
+  }
 }
-.opt{
-  width:100%;
-  display:flex;align-items:center;justify-content:center;gap:12px;
-  padding:19px 14px;
-  margin-bottom:14px;
-  background:var(--btn-bg);
-  border:1px solid var(--btn-line);
-  border-radius:16px;
-  color:#e6e8ee;
-  font:inherit;font-size:18px;
-  cursor:pointer;
-  transition:border-color .2s, background .2s;
+
+/* BACKGROUND GLOW */
+
+.ambient {
+  position: fixed;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: .12;
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientFloat 9s ease-in-out infinite alternate;
 }
-.opt:hover,.opt.active{border-color:var(--blue);background:#07101c}
-.opt svg{width:22px;height:22px;flex:none}
-.opt:disabled{opacity:.6;cursor:wait}
 
-/* panels */
-.panel{display:none;margin-bottom:14px;text-align:center}
-.panel.show{display:block}
-
-input{
-  width:100%;
-  padding:17px 16px;
-  background:#050505;
-  border:1px solid var(--btn-line);
-  border-radius:14px;
-  color:#fff;
-  font:inherit;font-size:17px;text-align:center;
-  outline:none;
+.ambient.one {
+  background: var(--blue);
+  top: 5%;
+  left: -150px;
 }
-input:focus{border-color:var(--blue)}
-.hint{margin-top:8px;font-size:12px;color:#5d6068}
 
-.go{
-  width:100%;margin-top:12px;padding:16px;
-  background:var(--blue);color:#fff;
-  border:0;border-radius:14px;
-  font:inherit;font-weight:700;font-size:16px;
-  cursor:pointer;
+.ambient.two {
+  background: var(--pink);
+  right: -150px;
+  bottom: 5%;
+  animation-delay: -4s;
 }
-.go:disabled{opacity:.6;cursor:wait}
-.go.ghost{background:transparent;color:var(--blue);border:1px solid var(--blue)}
 
-.code{
-  margin-top:6px;
-  padding:20px 8px;
-  border-radius:14px;
-  background:#050b14;
-  border:1px solid var(--card-line);
-  color:var(--blue);
-  font-size:30px;font-weight:700;letter-spacing:6px;
-  word-break:break-all;
+@keyframes ambientFloat {
+  from {
+    transform: translateY(-20px) scale(.9);
+  }
+
+  to {
+    transform: translateY(35px) scale(1.15);
+  }
 }
-.qr{display:none;margin-top:6px}
-.qr.show{display:block}
-.qr img{width:250px;height:250px;border-radius:14px;background:#fff;padding:8px}
-.how{margin-top:12px;font-size:12px;color:#6f727b;line-height:1.6}
 
-.status{
-  display:none;
-  align-items:center;justify-content:center;gap:9px;
-  margin-top:14px;font-size:13px;color:var(--gray);
+/* MAIN WRAPPER */
+
+.wrap {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 460px;
+
+  padding: 48px 18px 40px;
+  text-align: center;
 }
-.status.show{display:flex}
-.dot{width:8px;height:8px;border-radius:50%;background:#555}
-.dot.busy{background:var(--blue);animation:pulse 1.2s infinite}
-.dot.ok{background:#22c55e}
-.dot.bad{background:#ef4444}
-@keyframes pulse{50%{opacity:.3}}
 
-.err{display:none;margin-top:12px;font-size:13px;color:#ef4444}
+/* LOGO */
 
-.done{display:none;padding:10px 4px 6px}
-.done.show{display:block}
-.done b{display:block;font-size:20px;color:#22c55e;margin-bottom:10px}
-.done p{font-size:13px;line-height:1.7;color:var(--gray)}
+.logo {
+  width: 108px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: 24px;
 
-/* boxes under buttons */
-.by{
-  margin-top:6px;
-  padding:16px;
-  background:#02080f;
-  border:1px solid var(--card-line);
-  border-radius:16px;
-  font-size:14px;
-  color:var(--gray);
+  border: 2px solid transparent;
+
+  background:
+    linear-gradient(#030513,#030513) padding-box,
+    linear-gradient(
+      135deg,
+      var(--cyan),
+      var(--blue),
+      var(--purple),
+      var(--pink),
+      var(--orange)
+    ) border-box;
+
+  box-shadow:
+    0 0 22px rgba(0,229,255,.2),
+    0 0 40px rgba(255,22,143,.12);
+
+  animation:
+    logoFloat 4s ease-in-out infinite,
+    logoGlow 3s ease-in-out infinite alternate;
 }
-.by b{color:var(--blue);font-weight:500;letter-spacing:.5px}
 
-.line{height:1px;background:#1a1a1a;margin:24px 0 20px}
-.foot{font-size:16px;color:#6a6d76}
-.foot a{color:var(--blue);text-decoration:none;margin:0 4px}
-.foot a:hover{text-decoration:underline}
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
 
-@media (max-width:420px){
-  h1{font-size:38px}
-  .opt{font-size:16px}
+  50% {
+    transform: translateY(-9px) rotate(2deg);
+  }
+}
+
+@keyframes logoGlow {
+  from {
+    filter: drop-shadow(0 0 3px rgba(0,229,255,.15));
+  }
+
+  to {
+    filter:
+      drop-shadow(0 0 12px rgba(0,229,255,.4))
+      drop-shadow(0 0 18px rgba(255,22,143,.2));
+  }
+}
+
+/* TITLE */
+
+h1 {
+  margin-top: 20px;
+
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 44px;
+  letter-spacing: -1px;
+
+  background: linear-gradient(
+    100deg,
+    var(--cyan),
+    var(--blue),
+    var(--purple),
+    var(--pink),
+    var(--orange),
+    var(--cyan)
+  );
+
+  background-size: 300% auto;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  animation:
+    gradientMove 6s linear infinite,
+    titleEntrance .9s ease-out both;
+}
+
+@keyframes gradientMove {
+  to {
+    background-position: 300% center;
+  }
+}
+
+@keyframes titleEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.subtitle {
+  margin-top: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  color: #aab7df;
+
+  animation: subtitleEntrance 1s ease-out .2s both;
+}
+
+@keyframes subtitleEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* MAIN CARD */
+
+.card {
+  position: relative;
+  overflow: hidden;
+
+  margin-top: 34px;
+  padding: 22px 20px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(10,14,39,.96),
+    rgba(3,5,19,.97)
+  );
+
+  border: 1px solid var(--card-line);
+  border-radius: 24px;
+
+  box-shadow:
+    0 0 30px rgba(0,120,255,.09),
+    inset 0 0 24px rgba(124,44,255,.035);
+
+  animation: cardEntrance .9s cubic-bezier(.2,.8,.2,1) .15s both;
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ANIMATED TOP BORDER */
+
+.card::before {
+  content: "";
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--cyan),
+    var(--blue),
+    var(--purple),
+    var(--pink),
+    var(--orange),
+    transparent
+  );
+
+  background-size: 250% 100%;
+  animation: borderMove 5s linear infinite;
+}
+
+@keyframes borderMove {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -150% 0;
+  }
+}
+
+/* BUTTONS */
+
+.opt {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 18px 14px;
+  margin-bottom: 14px;
+
+  background: rgba(7,10,29,.92);
+  border: 1px solid rgba(80,112,255,.3);
+  border-radius: 16px;
+
+  color: #f2f5ff;
+  font: inherit;
+  font-size: 17px;
+
+  cursor: pointer;
+
+  transition:
+    transform .3s ease,
+    border-color .3s ease,
+    box-shadow .3s ease,
+    background .3s ease;
+}
+
+.opt::before {
+  content: "";
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 65%;
+  height: 100%;
+
+  background: linear-gradient(
+    110deg,
+    transparent,
+    rgba(255,255,255,.13),
+    transparent
+  );
+
+  transform: skewX(-20deg);
+  transition: left .65s ease;
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+.opt:hover::before {
+  left: 150%;
+}
+
+.opt:hover,
+.opt.active {
+  border-color: var(--cyan);
+
+  background: linear-gradient(
+    100deg,
+    rgba(0,229,255,.09),
+    rgba(124,44,255,.12),
+    rgba(255,22,143,.07)
+  );
+
+  box-shadow:
+    0 0 12px rgba(0,229,255,.2),
+    0 0 25px rgba(124,44,255,.12);
+
+  transform: translateY(-3px);
+}
+
+.opt:active {
+  transform: scale(.97);
+}
+
+.opt svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+
+  transition:
+    transform .35s ease,
+    filter .35s ease;
+}
+
+.opt:hover svg {
+  transform: scale(1.15) rotate(-7deg);
+  filter: drop-shadow(0 0 5px var(--cyan));
+}
+
+.opt:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+/* PANELS */
+
+.panel {
+  display: none;
+  margin-bottom: 14px;
+  text-align: center;
+
+  animation: panelEntrance .35s ease both;
+}
+
+.panel.show {
+  display: block;
+}
+
+@keyframes panelEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* PHONE INPUT */
+
+input {
+  width: 100%;
+  padding: 17px 16px;
+
+  background: #050719;
+  border: 1px solid rgba(80,112,255,.3);
+  border-radius: 14px;
+
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  text-align: center;
+
+  outline: none;
+
+  transition:
+    border-color .3s ease,
+    box-shadow .3s ease,
+    background .3s ease;
+}
+
+input:focus {
+  background: #080b20;
+  border-color: var(--cyan);
+
+  box-shadow:
+    0 0 0 3px rgba(0,229,255,.07),
+    0 0 20px rgba(0,229,255,.12);
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #818db8;
+}
+
+/* ACTION BUTTON */
+
+.go {
+  position: relative;
+  overflow: hidden;
+
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+
+  background: linear-gradient(
+    105deg,
+    var(--blue),
+    var(--purple) 48%,
+    var(--pink)
+  );
+
+  color: #fff;
+
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 14px;
+
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+
+  cursor: pointer;
+
+  box-shadow: 0 7px 20px rgba(74,42,255,.16);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    filter .25s ease;
+}
+
+.go::after {
+  content: "";
+  position: absolute;
+
+  top: -50%;
+  left: -100%;
+
+  width: 55%;
+  height: 200%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.22),
+    transparent
+  );
+
+  transform: rotate(20deg);
+  transition: left .6s ease;
+
+  pointer-events: none;
+}
+
+.go:hover::after {
+  left: 150%;
+}
+
+.go:hover {
+  filter: brightness(1.15);
+
+  box-shadow:
+    0 0 16px rgba(8,124,255,.28),
+    0 0 25px rgba(255,22,143,.12);
+
+  transform: translateY(-2px);
+}
+
+.go:active {
+  transform: scale(.97);
+}
+
+.go:disabled {
+  opacity: .6;
+  cursor: wait;
+  transform: none;
+}
+
+.go.ghost {
+  background: rgba(4,8,26,.8);
+  color: var(--cyan);
+
+  border: 1px solid rgba(0,229,255,.55);
+  box-shadow: none;
+}
+
+/* PAIRING CODE */
+
+.code {
+  margin-top: 6px;
+  padding: 20px 8px;
+
+  border-radius: 14px;
+
+  background: linear-gradient(
+    120deg,
+    rgba(0,229,255,.08),
+    rgba(124,44,255,.12),
+    rgba(255,22,143,.08)
+  );
+
+  border: 1px solid rgba(0,229,255,.35);
+  color: var(--cyan);
+
+  font-size: 29px;
+  font-weight: 700;
+  letter-spacing: 5px;
+
+  word-break: break-all;
+
+  text-shadow: 0 0 14px rgba(0,229,255,.22);
+
+  animation: codeGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes codeGlow {
+  from {
+    box-shadow: 0 0 5px rgba(0,229,255,.04);
+  }
+
+  to {
+    box-shadow:
+      0 0 18px rgba(0,229,255,.12),
+      inset 0 0 15px rgba(124,44,255,.08);
+  }
+}
+
+/* QR CODE */
+
+.qr {
+  display: none;
+  margin-top: 6px;
+}
+
+.qr.show {
+  display: block;
+}
+
+.qr img {
+  width: 250px;
+  height: 250px;
+
+  border-radius: 14px;
+  background: #fff;
+  padding: 8px;
+
+  border: 1px solid var(--cyan);
+}
+
+.qr.show img {
+  animation: qrEntrance .45s cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes qrEntrance {
+  from {
+    opacity: 0;
+    transform: scale(.85) rotate(-3deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+.how {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #8d99c2;
+  line-height: 1.7;
+}
+
+/* STATUS */
+
+.status {
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  margin-top: 14px;
+
+  font-size: 13px;
+  color: var(--gray);
+}
+
+.status.show {
+  display: flex;
+  animation: statusEntrance .3s ease both;
+}
+
+@keyframes statusEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+  background: #555;
+}
+
+.dot.busy {
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+  animation: pulse 1.2s infinite;
+}
+
+.dot.ok {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+}
+
+.dot.bad {
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: .3;
+    transform: scale(.8);
+  }
+}
+
+/* ERRORS */
+
+.err {
+  display: none;
+  margin-top: 12px;
+
+  font-size: 13px;
+  color: #ff6388;
+  line-height: 1.6;
+}
+
+.err[style*="block"] {
+  animation: errorEntrance .3s ease both;
+}
+
+@keyframes errorEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CONNECTED PANEL */
+
+.done {
+  display: none;
+  padding: 10px 4px 6px;
+}
+
+.done.show {
+  display: block;
+  animation: successEntrance .5s ease both;
+}
+
+@keyframes successEntrance {
+  from {
+    opacity: 0;
+    transform: scale(.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.done b {
+  display: block;
+  font-size: 20px;
+  color: var(--green);
+  margin-bottom: 10px;
+
+  animation: successGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes successGlow {
+  from {
+    text-shadow: 0 0 3px rgba(66,255,173,.2);
+  }
+
+  to {
+    text-shadow: 0 0 15px rgba(66,255,173,.55);
+  }
+}
+
+.done p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--gray);
+}
+
+/* CREATED BY */
+
+.by {
+  margin-top: 6px;
+  padding: 16px;
+
+  background: rgba(0,229,255,.035);
+  border: 1px solid rgba(0,229,255,.2);
+  border-radius: 16px;
+
+  font-size: 14px;
+  color: var(--gray);
+
+  transition:
+    border-color .3s ease,
+    box-shadow .3s ease;
+}
+
+.by:hover {
+  border-color: rgba(255,22,143,.4);
+  box-shadow: 0 0 15px rgba(255,22,143,.06);
+}
+
+.by b {
+  font-weight: 700;
+  letter-spacing: .7px;
+
+  background: linear-gradient(
+    90deg,
+    var(--cyan),
+    var(--blue),
+    var(--pink),
+    var(--orange)
+  );
+
+  background-size: 200% auto;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  animation: gradientMove 5s linear infinite;
+}
+
+/* FOOTER */
+
+.line {
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0,229,255,.35),
+    rgba(255,22,143,.35),
+    transparent
+  );
+
+  margin: 24px 0 20px;
+}
+
+.foot {
+  font-size: 14px;
+  color: #818db8;
+}
+
+.foot a {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0 5px;
+
+  background: linear-gradient(
+    90deg,
+    var(--cyan),
+    #5c9dff,
+    var(--pink)
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  transition: transform .25s ease;
+}
+
+.foot a:hover {
+  transform: translateY(-2px);
+  text-decoration: underline;
+}
+
+/* MOBILE */
+
+@media (max-width: 420px) {
+  h1 {
+    font-size: 39px;
+  }
+
+  .opt {
+    font-size: 15px;
+  }
+
+  .wrap {
+    padding-top: 34px;
+  }
+
+  .card {
+    padding: 20px 15px;
+  }
+
+  .logo {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
 }
 </style>
 </head>
+
 <body>
+
+<div class="ambient one"></div>
+<div class="ambient two"></div>
 
 <div class="wrap">
 
-  <img class="logo" src="https://i.ibb.co/bMmWvXvx/silamd.jpg" alt="SILA MD">
-  <h1><span>SILA</span> MD</h1>
+  <img
+    class="logo"
+    src="https://i.ibb.co/bMmWvXvx/silamd.jpg"
+    alt="SILA MD"
+  >
+
+  <h1>SILA MD</h1>
+
   <p class="subtitle">Link your WhatsApp</p>
 
   <div class="card">
 
     <div id="main">
+
+      <!-- PAIRING CODE BUTTON -->
+
       <button class="opt" id="codeOpt" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#e6e8ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#00e5ff"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="6" y="2" width="12" height="20" rx="3"/>
+          <line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+
         Request Pairing Code
+
       </button>
 
       <div class="panel" id="codePanel">
-        <input id="phone" type="tel" inputmode="numeric" placeholder="255712345678" autocomplete="tel">
-        <p class="hint">country code first, digits only</p>
-        <button class="go" id="codeGo" type="button">Generate Code</button>
+
+        <input
+          id="phone"
+          type="tel"
+          inputmode="numeric"
+          placeholder="255712345678"
+          autocomplete="tel"
+        >
+
+        <p class="hint">
+          Country code first, digits only
+        </p>
+
+        <button class="go" id="codeGo" type="button">
+          Generate Code
+        </button>
+
         <div id="codeResult" style="display:none">
+
           <div class="code" id="codeValue">----</div>
-          <button class="go ghost" id="copyBtn" type="button">Copy Code</button>
-          <p class="how">WhatsApp &gt; Settings &gt; Linked devices &gt; Link a device &gt; Link with phone number instead</p>
+
+          <button class="go ghost" id="copyBtn" type="button">
+            Copy Code
+          </button>
+
+          <p class="how">
+            WhatsApp &gt; Settings &gt; Linked devices
+            &gt; Link a device &gt; Link with phone number instead
+          </p>
+
         </div>
+
       </div>
 
+      <!-- QR CODE BUTTON -->
+
       <button class="opt" id="qrOpt" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#e6e8ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v0M17 20h4M20 17v3"/></svg>
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#ff168f"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <path d="M14 14h3v3h-3zM20 14v0M17 20h4M20 17v3"/>
+        </svg>
+
         Request QR Code
+
       </button>
 
       <div class="panel" id="qrPanel">
+
         <div class="qr" id="qrBox">
-          <img id="qrImage" alt="QR code" src="">
-          <p class="how">WhatsApp &gt; Settings &gt; Linked devices &gt; Link a device, then scan</p>
+
+          <img id="qrImage" alt="WhatsApp QR Code" src="">
+
+          <p class="how">
+            WhatsApp &gt; Settings &gt; Linked devices
+            &gt; Link a device, then scan
+          </p>
+
         </div>
+
       </div>
 
-      <div class="status" id="status"><span class="dot" id="dot"></span><span id="statusText"></span></div>
+      <!-- STATUS -->
+
+      <div class="status" id="status">
+        <span class="dot" id="dot"></span>
+        <span id="statusText"></span>
+      </div>
+
       <div class="err" id="err"></div>
 
-      <div class="by" style="margin-top:14px">Created By: <b>SILA TECH</b></div>
+      <!-- BRAND -->
+
+      <div class="by" style="margin-top:14px">
+        Created By: <b>SILA TECH</b>
+      </div>
+
     </div>
+
+    <!-- CONNECTED PANEL -->
 
     <div class="done" id="done">
-      <b>Connected</b>
-      <p>Your session ID is on its way to your WhatsApp chat with yourself. Keep it private.</p>
-      <button class="go ghost" id="again" type="button">Pair another number</button>
+
+      <b>Connected Successfully!</b>
+
+      <p>
+        Your session ID is on its way to your WhatsApp
+        chat with yourself. Keep it private.
+      </p>
+
+      <button class="go ghost" id="again" type="button">
+        Pair Another Number
+      </button>
+
     </div>
 
+    <!-- FOOTER -->
+
     <div class="line"></div>
+
     <div class="foot">
+
       Join us:
-      <a href="https://whatsapp.com/channel/0029VbBG4gfISTkCpKxyMH02" target="_blank" rel="noopener">Channel</a>|
-      <a href="https://chat.whatsapp.com/LexNEPHRmU96sOmZCIOK8G" target="_blank" rel="noopener">Group</a>
+
+      <a
+        href="https://whatsapp.com/channel/0029VbBG4gfISTkCpKxyMH02"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Channel</a>
+
+      |
+
+      <a
+        href="https://chat.whatsapp.com/LexNEPHRmU96sOmZCIOK8G"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Group</a>
+
     </div>
 
   </div>
+
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
 
 const phoneEl = $('phone');
-const codeOpt = $('codeOpt'), qrOpt = $('qrOpt');
-const codePanel = $('codePanel'), qrPanel = $('qrPanel');
-const codeGo = $('codeGo'), codeResult = $('codeResult'), codeValue = $('codeValue');
-const qrBox = $('qrBox'), qrImage = $('qrImage');
-const errEl = $('err'), main = $('main'), done = $('done');
-const statusEl = $('status'), dot = $('dot'), statusText = $('statusText');
 
-let mode = null;      // 'code' | 'qr'
-let key = null;       // phone number (code) or server id (qr)
+const codeOpt = $('codeOpt');
+const qrOpt = $('qrOpt');
+
+const codePanel = $('codePanel');
+const qrPanel = $('qrPanel');
+
+const codeGo = $('codeGo');
+const codeResult = $('codeResult');
+const codeValue = $('codeValue');
+
+const qrBox = $('qrBox');
+const qrImage = $('qrImage');
+
+const errEl = $('err');
+const main = $('main');
+const done = $('done');
+
+const statusEl = $('status');
+const dot = $('dot');
+const statusText = $('statusText');
+
+let mode = null;
+let key = null;
 let poll = null;
 
 const STATUS = {
-  connecting:         ['Connecting to WhatsApp...', 'busy'],
-  generating_code:    ['Generating pairing code...', 'busy'],
-  waiting_approval:   ['Waiting for confirmation in WhatsApp...', 'busy'],
-  pairing_code_ready: ['Pairing code ready', 'busy'],
-  qr_ready:           ['QR ready, scan it now', 'busy'],
-  connected:          ['Connected', 'ok'],
-  session_ready:      ['Session sent', 'ok'],
-  disconnected:       ['Reconnecting...', 'bad'],
-  failed:             ['Failed, try again', 'bad']
+  connecting: [
+    'Connecting to WhatsApp...',
+    'busy'
+  ],
+
+  generating_code: [
+    'Generating pairing code...',
+    'busy'
+  ],
+
+  waiting_approval: [
+    'Waiting for confirmation in WhatsApp...',
+    'busy'
+  ],
+
+  pairing_code_ready: [
+    'Pairing code ready',
+    'busy'
+  ],
+
+  qr_ready: [
+    'QR ready, scan it now',
+    'busy'
+  ],
+
+  connected: [
+    'Connected',
+    'ok'
+  ],
+
+  session_ready: [
+    'Session sent',
+    'ok'
+  ],
+
+  disconnected: [
+    'Reconnecting...',
+    'bad'
+  ],
+
+  failed: [
+    'Failed, try again',
+    'bad'
+  ]
 };
 
-function setStatus(s){
+function setStatus(s) {
+
   const v = STATUS[s];
-  if (!v){ statusEl.classList.remove('show'); return; }
+
+  if (!v) {
+    statusEl.classList.remove('show');
+    return;
+  }
+
   statusText.textContent = v[0];
   dot.className = 'dot ' + v[1];
+
   statusEl.classList.add('show');
 }
-function showErr(m){ errEl.textContent = m; errEl.style.display = 'block'; }
-function hideErr(){ errEl.style.display = 'none'; }
-const digits = () => phoneEl.value.replace(/\D/g, '');
 
-function fmt(c){
-  const s = String(c || '').replace(/[^A-Za-z0-9]/g, '');
-  return s.length === 8 ? s.slice(0,4) + '-' + s.slice(4) : (c || '----');
+function showErr(message) {
+  errEl.textContent = message;
+  errEl.style.display = 'block';
 }
 
-function open(which){
+function hideErr() {
+  errEl.style.display = 'none';
+}
+
+const digits = () =>
+  phoneEl.value.replace(/\D/g, '');
+
+function fmt(code) {
+
+  const value = String(code || '')
+    .replace(/[^A-Za-z0-9]/g, '');
+
+  return value.length === 8
+    ? value.slice(0, 4) + '-' + value.slice(4)
+    : (code || '----');
+}
+
+function open(which) {
+
   clearInterval(poll);
+
   hideErr();
+
   statusEl.classList.remove('show');
+
   mode = which;
-  codePanel.classList.toggle('show', which === 'code');
-  qrPanel.classList.toggle('show', which === 'qr');
-  codeOpt.classList.toggle('active', which === 'code');
-  qrOpt.classList.toggle('active', which === 'qr');
+
+  codePanel.classList.toggle(
+    'show',
+    which === 'code'
+  );
+
+  qrPanel.classList.toggle(
+    'show',
+    which === 'qr'
+  );
+
+  codeOpt.classList.toggle(
+    'active',
+    which === 'code'
+  );
+
+  qrOpt.classList.toggle(
+    'active',
+    which === 'qr'
+  );
+
   codeResult.style.display = 'none';
+
   qrBox.classList.remove('show');
 }
 
-function finish(){
+function finish() {
+
   clearInterval(poll);
+
   main.style.display = 'none';
+
   done.classList.add('show');
 }
 
-async function check(){
+async function check() {
+
   if (!key) return;
+
   try {
-    const r = await fetch('/api/status?id=' + encodeURIComponent(key), { cache: 'no-store' });
-    if (!r.ok) return;
-    const d = await r.json();
-    setStatus(d.status);
-    if (d.connected) return finish();
-    if (mode === 'code' && d.pairingCode){
-      codeValue.textContent = fmt(d.pairingCode);
+
+    const response = await fetch(
+      '/api/status?id=' + encodeURIComponent(key),
+      { cache: 'no-store' }
+    );
+
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    setStatus(data.status);
+
+    if (data.connected) {
+      finish();
+      return;
+    }
+
+    if (mode === 'code' && data.pairingCode) {
+
+      codeValue.textContent =
+        fmt(data.pairingCode);
+
       codeResult.style.display = 'block';
     }
-    if (mode === 'qr' && d.qrDataUrl){
-      qrImage.src = d.qrDataUrl;
+
+    if (mode === 'qr' && data.qrDataUrl) {
+
+      if (qrImage.src !== data.qrDataUrl) {
+        qrImage.src = data.qrDataUrl;
+      }
+
       qrBox.classList.add('show');
     }
-  } catch {}
+
+  } catch (error) {
+    // Polling will retry on the next interval.
+  }
 }
 
-function startPolling(){
+function startPolling() {
+
   clearInterval(poll);
+
   check();
+
   poll = setInterval(check, 2000);
 }
 
-/* pairing code: needs the number */
-codeOpt.onclick = () => { open('code'); phoneEl.focus(); };
+/* PAIRING CODE */
 
-async function requestCode(){
+codeOpt.onclick = () => {
+
+  open('code');
+
+  phoneEl.focus();
+};
+
+async function requestCode() {
+
   hideErr();
+
   const phone = digits();
-  if (phone.length < 7) return showErr('Enter a valid number with the country code.');
+
+  if (phone.length < 7 || phone.length > 15) {
+
+    showErr(
+      'Enter a valid phone number with the country code.'
+    );
+
+    return;
+  }
 
   codeGo.disabled = true;
   codeGo.textContent = 'Please wait...';
+
   codeResult.style.display = 'none';
+
   clearInterval(poll);
 
   try {
-    const r = await fetch('/api/pair', {
+
+    const response = await fetch('/api/pair', {
+
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+
+      headers: {
+        'Content-Type': 'application/json'
+      },
+
       body: JSON.stringify({ phone })
+
     });
-    const d = await r.json();
-    if (!r.ok || d.success === false){
-      showErr(d.error || 'Something went wrong.');
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false) {
+
+      showErr(
+        data.error || 'Something went wrong.'
+      );
+
       setStatus('failed');
+
     } else {
+
       key = phone;
-      codeValue.textContent = fmt(d.pairingCode);
-      codeResult.style.display = 'block';
+
+      if (data.pairingCode) {
+
+        codeValue.textContent =
+          fmt(data.pairingCode);
+
+        codeResult.style.display = 'block';
+      }
+
       setStatus('waiting_approval');
+
       startPolling();
     }
-  } catch {
+
+  } catch (error) {
+
     showErr('Cannot reach the server.');
+
     setStatus('failed');
   }
 
   codeGo.disabled = false;
+
   codeGo.textContent = 'Generate Code';
 }
-codeGo.onclick = requestCode;
-phoneEl.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); requestCode(); } });
 
-/* QR: no number needed */
+codeGo.onclick = requestCode;
+
+phoneEl.addEventListener('keydown', event => {
+
+  if (event.key === 'Enter') {
+
+    event.preventDefault();
+
+    requestCode();
+  }
+});
+
+/* QR CODE */
+
 qrOpt.onclick = async () => {
+
   open('qr');
+
   qrOpt.disabled = true;
+
   setStatus('connecting');
 
   try {
-    const r = await fetch('/api/start-qr', {
+
+    const response = await fetch('/api/start-qr', {
+
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: mode === 'qr' && key && !/^\d{7,15}$/.test(key) ? key : undefined })
+
+      headers: {
+        'Content-Type': 'application/json'
+      },
+
+      body: JSON.stringify({
+        id:
+          mode === 'qr' &&
+          key &&
+          !/^\d{7,15}$/.test(key)
+            ? key
+            : undefined
+      })
+
     });
-    const d = await r.json();
-    if (!r.ok || d.success === false){
-      showErr(d.error || 'Could not generate QR.');
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false) {
+
+      showErr(
+        data.error || 'Could not generate QR.'
+      );
+
       setStatus('failed');
+
     } else {
-      key = d.id;
-      qrImage.src = d.qrDataUrl;
-      qrBox.classList.add('show');
+
+      key = data.id;
+
+      if (data.qrDataUrl) {
+
+        qrImage.src = data.qrDataUrl;
+
+        qrBox.classList.add('show');
+      }
+
       setStatus('qr_ready');
+
       startPolling();
     }
-  } catch {
+
+  } catch (error) {
+
     showErr('Cannot reach the server.');
+
     setStatus('failed');
   }
 
   qrOpt.disabled = false;
 };
 
+/* COPY CODE */
+
 $('copyBtn').onclick = async () => {
-  const c = codeValue.textContent.trim();
-  if (!c || c === '----') return;
+
+  const code = codeValue.textContent.trim();
+
+  if (!code || code === '----') return;
+
   try {
-    await navigator.clipboard.writeText(c);
-    $('copyBtn').textContent = 'Copied';
-    setTimeout(() => $('copyBtn').textContent = 'Copy Code', 1500);
-  } catch { showErr('Copy failed, copy the code manually.'); }
+
+    await navigator.clipboard.writeText(code);
+
+    $('copyBtn').textContent = 'Copied!';
+
+    setTimeout(() => {
+
+      $('copyBtn').textContent = 'Copy Code';
+
+    }, 1500);
+
+  } catch (error) {
+
+    showErr(
+      'Copy failed. Please copy the code manually.'
+    );
+  }
 };
 
+/* PAIR ANOTHER NUMBER */
+
 $('again').onclick = () => {
+
   done.classList.remove('show');
+
   main.style.display = 'block';
+
   phoneEl.value = '';
+
   key = null;
+
   open(null);
 };
 </script>
+
 </body>
 </html>
