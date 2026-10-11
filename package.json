@@ -21,6 +21,7 @@
     "dotenv": "16.3.1",
     "pino": "8.15.0",
     "qrcode": "1.5.3",
+    "gifted-btns": "^1.0.2",
     "axios": "1.6.0",
     "baileys": "github:raoltech/baileys"
   },
