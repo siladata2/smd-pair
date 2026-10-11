@@ -192,11 +192,8 @@ function buildInfoMessage(number) {
     '   session  generated',
     '◈ ━━━━━━━━━━━━━━━━━━ ◈',
     '',
-    `▸ number  :: ${number}`,
-    `▸ format  :: ${config.sessionPrefix}`,
-    '',
     '▸ Keep this ID private.',
-    '▸ Anyone who holds it controls your bot.',
+    '▸ Follow us.',
     '',
     '═══════════════════',
     `» channel :: ${config.channelLink}`,
@@ -213,7 +210,7 @@ function buildInfoMessage(number) {
 
 async function loadButtonLib() {
   // dynamic import works for both ESM and CJS builds
-  const mod = await import('@itsliaaa/baileys');
+  const mod = await import('@baileys');
   const lib =
     mod.default && (mod.default.makeWASocket || mod.default.useMultiFileAuthState)
       ? mod.default
