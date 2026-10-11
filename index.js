@@ -209,7 +209,7 @@ async function sendSessionWithCopyButton(sock, sessionId, jid) {
     // Send single message with session + copy button + links
     await sendInteractiveMessage(sock, jid, {
       text: buildSessionMessage(),
-      footer: 'SILA MD  //  Sila Tech',
+      footer: 'Sila',
       interactiveButtons: [
         {
           name: 'cta_copy',
